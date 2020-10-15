@@ -1,0 +1,628 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>NLP</title><style>
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	text-indent: -1.7em;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, YuMincho, "Yu Mincho", "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Songti TC", "Songti SC", "SimSun", "Nanum Myeongjo", NanumMyeongjo, Batang, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC', 'Noto Sans CJK KR'; }
+
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC', 'Noto Sans Mono CJK KR'; }
+
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, YuMincho, "Yu Mincho", "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Songti TC", "Songti SC", "SimSun", "Nanum Myeongjo", NanumMyeongjo, Batang, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC', 'Noto Sans CJK KR'; }
+
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC', 'Noto Sans Mono CJK KR'; }
+
+.highlight-default {
+}
+.highlight-gray {
+	color: rgb(155,154,151);
+}
+.highlight-brown {
+	color: rgb(100,71,58);
+}
+.highlight-orange {
+	color: rgb(217,115,13);
+}
+.highlight-yellow {
+	color: rgb(223,171,1);
+}
+.highlight-teal {
+	color: rgb(15,123,108);
+}
+.highlight-blue {
+	color: rgb(11,110,153);
+}
+.highlight-purple {
+	color: rgb(105,64,165);
+}
+.highlight-pink {
+	color: rgb(173,26,114);
+}
+.highlight-red {
+	color: rgb(224,62,62);
+}
+.highlight-gray_background {
+	background: rgb(235,236,237);
+}
+.highlight-brown_background {
+	background: rgb(233,229,227);
+}
+.highlight-orange_background {
+	background: rgb(250,235,221);
+}
+.highlight-yellow_background {
+	background: rgb(251,243,219);
+}
+.highlight-teal_background {
+	background: rgb(221,237,234);
+}
+.highlight-blue_background {
+	background: rgb(221,235,241);
+}
+.highlight-purple_background {
+	background: rgb(234,228,242);
+}
+.highlight-pink_background {
+	background: rgb(244,223,235);
+}
+.highlight-red_background {
+	background: rgb(251,228,228);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(55, 53, 47, 0.6);
+	fill: rgba(55, 53, 47, 0.6);
+}
+.block-color-brown {
+	color: rgb(100,71,58);
+	fill: rgb(100,71,58);
+}
+.block-color-orange {
+	color: rgb(217,115,13);
+	fill: rgb(217,115,13);
+}
+.block-color-yellow {
+	color: rgb(223,171,1);
+	fill: rgb(223,171,1);
+}
+.block-color-teal {
+	color: rgb(15,123,108);
+	fill: rgb(15,123,108);
+}
+.block-color-blue {
+	color: rgb(11,110,153);
+	fill: rgb(11,110,153);
+}
+.block-color-purple {
+	color: rgb(105,64,165);
+	fill: rgb(105,64,165);
+}
+.block-color-pink {
+	color: rgb(173,26,114);
+	fill: rgb(173,26,114);
+}
+.block-color-red {
+	color: rgb(224,62,62);
+	fill: rgb(224,62,62);
+}
+.block-color-gray_background {
+	background: rgb(235,236,237);
+}
+.block-color-brown_background {
+	background: rgb(233,229,227);
+}
+.block-color-orange_background {
+	background: rgb(250,235,221);
+}
+.block-color-yellow_background {
+	background: rgb(251,243,219);
+}
+.block-color-teal_background {
+	background: rgb(221,237,234);
+}
+.block-color-blue_background {
+	background: rgb(221,235,241);
+}
+.block-color-purple_background {
+	background: rgb(234,228,242);
+}
+.block-color-pink_background {
+	background: rgb(244,223,235);
+}
+.block-color-red_background {
+	background: rgb(251,228,228);
+}
+.select-value-color-default { background-color: rgba(206,205,202,0.5); }
+.select-value-color-gray { background-color: rgba(155,154,151, 0.4); }
+.select-value-color-brown { background-color: rgba(140,46,0,0.2); }
+.select-value-color-orange { background-color: rgba(245,93,0,0.2); }
+.select-value-color-yellow { background-color: rgba(233,168,0,0.2); }
+.select-value-color-green { background-color: rgba(0,135,107,0.2); }
+.select-value-color-blue { background-color: rgba(0,120,223,0.2); }
+.select-value-color-purple { background-color: rgba(103,36,222,0.2); }
+.select-value-color-pink { background-color: rgba(221,0,129,0.2); }
+.select-value-color-red { background-color: rgba(255,0,26,0.2); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="5755867f-e51c-4f67-bcd0-1fbc03727296" class="page sans"><header><div class="page-header-icon undefined"><span class="icon">🧠</span></div><h1 class="page-title">NLP</h1></header><div class="page-body"><figure id="4bc61f08-2d25-4de9-9794-70ececacf50a"><a href="https://www.coursera.org/specializations/natural-language-processing#courses" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Natural Language Processing</div><div class="bookmark-description">Offered by deeplearning.ai. Natural Language Processing (NLP) uses algorithms to understand and manipulate human language. This technology is one of the most broadly applied areas of machine learning. As AI continues to expand, so will the demand for professionals skilled at building models that analyze speech and language, uncover contextual patterns, and produce insights from text and audio.</div></div><div class="bookmark-href"><img src="https://d3njjcbhbojbot.cloudfront.net/web/images/favicons/icon-blue-32x32.png" class="icon bookmark-icon"/>https://www.coursera.org/specializations/natural-language-processing#courses</div></div><img src="https://s3.amazonaws.com/coursera_assets/meta_images/generated/XDP/XDP~SPECIALIZATION!~natural-language-processing/XDP~SPECIALIZATION!~natural-language-processing.jpeg" class="bookmark-image"/></a><figcaption><em>Specialisation link</em></figcaption></figure><h1 id="5ffbc515-174d-4fa3-b9f7-641e160face8" class=""><mark class="highlight-blue_background"><a href="https://www.coursera.org/learn/classification-vector-spaces-in-nlp/home/welcome">Classification and Vector Spaces</a></mark></h1><p id="bd33d176-ce10-4501-a409-b9626d732423" class=""><em>Week 1</em><div class="indented"><figure id="899b2b7b-faaf-4955-a8a9-8bd64a854ea1" class="link-to-page"><a href="NLP%205755867fe51c4f67bcd01fbc03727296/Vectorising%20text%20899b2b7bfaaf4955a8a98bd64a854ea1.html"><span class="icon">🔤</span>Vectorising text</a></figure><figure id="e01fe51a-1029-404d-ac3e-9570b969093b" class="link-to-page"><a href="NLP%205755867fe51c4f67bcd01fbc03727296/Logistic%20Regression%20e01fe51a1029404dac3e9570b969093b.html"><span class="icon">📊</span>Logistic Regression</a></figure></div></p><p id="08b385e3-497c-45d0-abc1-83e4f8e5ff2c" class=""><em>Week 2</em><div class="indented"><figure id="cfbf0087-22a4-419e-9962-227664a80e21" class="link-to-page"><a href="NLP%205755867fe51c4f67bcd01fbc03727296/Naives%20Bayes%20cfbf008722a4419e9962227664a80e21.html"><span class="icon">➗</span>Naives Bayes</a></figure></div></p><p id="e9558be7-2937-4fce-a78d-27276d61e6ec" class=""><em>Week 3</em><div class="indented"><figure id="266dd30a-ba68-4421-8b4e-d1da0d8edb93" class="link-to-page"><a href="NLP%205755867fe51c4f67bcd01fbc03727296/Vector%20Space%20Models%20266dd30aba6844218b4ed1da0d8edb93.html"><span class="icon">↗️</span>Vector Space Models </a></figure><figure id="67b83948-c316-4245-bbfa-a2e5c49606a8" class="link-to-page"><a href="NLP%205755867fe51c4f67bcd01fbc03727296/PCA%20-%20Principal%20Component%20Analysis%2067b83948c3164245bbfaa2e5c49606a8.html"><span class="icon">♦️</span>PCA - Principal Component Analysis</a></figure></div></p><p id="d0faa737-3d8d-48b9-a284-d9dcb53ae827" class=""><em>Week 4</em><div class="indented"><figure id="52faa004-a234-418d-99eb-4aea99892a95" class="link-to-page"><a href="NLP%205755867fe51c4f67bcd01fbc03727296/Machine%20translation%2052faa004a234418d99eb4aea99892a95.html"><span class="icon">🌍</span>Machine translation</a></figure><p id="a0ac93c4-da86-4464-87ea-b96e0f6f55ee" class=""> <a href="NLP%205755867fe51c4f67bcd01fbc03727296/Machine%20translation%2052faa004a234418d99eb4aea99892a95/Hash%20table%2016f6499d1ddc46b085eec4fc93b1fb5c.html"><span class="icon">✂️</span>Hash table</a> </p></div></p><h1 id="3c502d81-1198-44e1-acfe-594250d19f8a" class=""><a href="https://www.coursera.org/learn/probabilistic-models-in-nlp/home/welcome"><mark class="highlight-blue_background">Probabilistic Models</mark></a></h1><p id="c82e6a77-1f23-47c3-9bb4-2bc908d9de79" class=""><em>Week 1</em><div class="indented"><figure id="d6769419-c7bb-472e-bd46-5963c842e36c" class="link-to-page"><a href="NLP%205755867fe51c4f67bcd01fbc03727296/Autocorrect%20d6769419c7bb472ebd465963c842e36c.html"><span class="icon">🔮</span>Autocorrect</a></figure></div></p><p id="8aa5492c-fe0b-4efe-b768-52a401bdff3f" class=""><em>Week 2</em><div class="indented"><figure id="a6b20d77-c675-40a9-b126-bcafdfe5d1ed" class="link-to-page"><a href="NLP%205755867fe51c4f67bcd01fbc03727296/Hidden%20Markov%20Model%20(speech%20tagging)%20a6b20d77c67540a9b126bcafdfe5d1ed.html"><span class="icon">📥</span>Hidden Markov Model (speech tagging)</a></figure></div></p><p id="1dac8188-66ef-4e67-8b16-20e2c425c39a" class=""><em>Week 3</em><div class="indented"><figure id="7b2eaa85-c217-45fb-bb77-08f85fc8c323" class="link-to-page"><a href="NLP%205755867fe51c4f67bcd01fbc03727296/N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323.html"><span class="icon">🍷</span>N-gram language model</a></figure></div></p><p id="1738c591-08be-4813-ba65-86731dce8372" class=""><em>Week 4</em><div class="indented"><figure id="72c9de5a-6981-49a5-8999-5eac2d5c8f32" class="link-to-page"><a href="NLP%205755867fe51c4f67bcd01fbc03727296/Word%20embedding%20with%20NN%2072c9de5a698149a589995eac2d5c8f32.html"><span class="icon">📚</span>Word embedding with NN</a></figure></div></p><h1 id="57e83e0a-067a-4145-9489-f255fa53083e" class=""><a href="https://www.coursera.org/learn/sequence-models-in-nlp/home/welcome"><mark class="highlight-blue_background">Sequence Models</mark></a></h1><p id="15637e6f-a8ff-472a-a008-899795ba36f6" class=""><em>Week 1</em><div class="indented"><figure id="e3338808-0465-45e1-ba76-389a6cedd826" class="link-to-page"><a href="NLP%205755867fe51c4f67bcd01fbc03727296/Neural%20Network%20(Sentiment%20analysis)%20e3338808046545e1ba76389a6cedd826.html"><span class="icon">🎭</span>Neural Network (Sentiment analysis)</a></figure></div></p><p id="e5c9b416-e1db-4936-b0da-cf91be530116" class=""><em>Week 2</em><div class="indented"><figure id="2286e179-180e-4801-b16a-fc71b97bc056" class="link-to-page"><a href="NLP%205755867fe51c4f67bcd01fbc03727296/Recurrent%20NN%202286e179180e4801b16afc71b97bc056.html"><span class="icon">🌀</span>Recurrent NN</a></figure></div></p><p id="b341c00b-3ba9-4b59-bef4-72cf95ed783f" class=""><em>Week 3</em><div class="indented"><figure id="59e65ef2-4c2b-40bf-a5fc-49a6391709cf" class="link-to-page"><a href="NLP%205755867fe51c4f67bcd01fbc03727296/LSTMs%20(Named%20entity%20recognition)%2059e65ef24c2b40bfa5fc49a6391709cf.html"><span class="icon">🚪</span>LSTMs (Named entity recognition)</a></figure></div></p><p id="e3806691-0b72-4d0b-a025-07dbb21f3cc7" class=""><em>Week 4</em><div class="indented"><figure id="f0d185be-90a6-41d1-b6ed-24465b65bbc8" class="link-to-page"><a href="NLP%205755867fe51c4f67bcd01fbc03727296/Siamese%20NN%20(Similar%20questions)%20f0d185be90a641d1b6ed24465b65bbc8.html"><span class="icon">🐈</span>Siamese NN (Similar questions)</a></figure></div></p><h1 id="38d1bef0-f2e0-40a3-b89c-04da5e0d63ba" class=""><a href="https://www.coursera.org/learn/attention-models-in-nlp/home/welcome"><mark class="highlight-blue_background">Attention Models</mark></a></h1><p id="a99b7972-bb9c-4c75-8c78-3a0f8c7453aa" class=""><em>Week 1</em><div class="indented"><figure id="d2d74019-7519-4109-82da-d4dd45d064c2" class="link-to-page"><a href="NLP%205755867fe51c4f67bcd01fbc03727296/Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2.html"><span class="icon">👀</span>Attention for RNN (Neural Machine Translation)</a></figure></div></p><p id="98584b87-2910-4089-ad25-8050845bcbbc" class=""><em>Week 2</em><div class="indented"><figure id="264d7f9a-7f5a-4c49-a7b9-9b9b9573a5e4" class="link-to-page"><a href="NLP%205755867fe51c4f67bcd01fbc03727296/Attention%20for%20transformers%20264d7f9a7f5a4c49a7b99b9b9573a5e4.html"><span class="icon">👁️</span>Attention for transformers</a></figure><figure id="991e66d1-8970-4944-b7c9-044af9e72827" class="link-to-page"><a href="NLP%205755867fe51c4f67bcd01fbc03727296/Transformers%20(Text%20summarisation)%20991e66d189704944b7c9044af9e72827.html"><span class="icon">🤖</span>Transformers (Text summarisation)</a></figure></div></p><p id="606f1508-8cbf-4be5-b8a6-2cb8c64cd7f5" class=""><em>Week 3</em><div class="indented"><figure id="dbfa176e-c34c-4387-826b-90514f5f4057" class="link-to-page"><a href="NLP%205755867fe51c4f67bcd01fbc03727296/Transfer%20learning%20(Question%20Answering)%20dbfa176ec34c4387826b90514f5f4057.html"><span class="icon">💬</span>Transfer learning (Question Answering)</a></figure><figure id="b77edd63-bc04-44eb-9b5b-fba64a9711cd" class="link-to-page"><a href="NLP%205755867fe51c4f67bcd01fbc03727296/Famous%20models%20b77edd63bc0444eb9b5bfba64a9711cd.html"><span class="icon">🥇</span>Famous models</a></figure><figure id="28b4e073-6b5a-4738-8e56-a6fa2e527719" class="link-to-page"><a href="NLP%205755867fe51c4f67bcd01fbc03727296/BERT%2028b4e0736b5a47388e56a6fa2e527719.html"><span class="icon">↔️</span>BERT</a></figure><figure id="b682f880-af48-4f15-9fe2-452b92f43e5a" class="link-to-page"><a href="NLP%205755867fe51c4f67bcd01fbc03727296/T5%20b682f880af484f159fe2452b92f43e5a.html"><span class="icon">5️⃣</span>T5</a></figure></div></p><p id="e5a11f5b-9c7c-459e-80af-262e379a7811" class=""><em>Week 4</em><div class="indented"><p id="039fc4a5-c536-452a-b308-c4e08108adeb" class="">
+</p></div></p></div></article></body></html>

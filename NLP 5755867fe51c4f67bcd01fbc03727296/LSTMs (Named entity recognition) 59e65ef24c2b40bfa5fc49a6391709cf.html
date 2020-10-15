@@ -1,0 +1,638 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>LSTMs (Named entity recognition)</title><style>
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	text-indent: -1.7em;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, YuMincho, "Yu Mincho", "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Songti TC", "Songti SC", "SimSun", "Nanum Myeongjo", NanumMyeongjo, Batang, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC', 'Noto Sans CJK KR'; }
+
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC', 'Noto Sans Mono CJK KR'; }
+
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, YuMincho, "Yu Mincho", "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Songti TC", "Songti SC", "SimSun", "Nanum Myeongjo", NanumMyeongjo, Batang, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC', 'Noto Sans CJK KR'; }
+
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC', 'Noto Sans Mono CJK KR'; }
+
+.highlight-default {
+}
+.highlight-gray {
+	color: rgb(155,154,151);
+}
+.highlight-brown {
+	color: rgb(100,71,58);
+}
+.highlight-orange {
+	color: rgb(217,115,13);
+}
+.highlight-yellow {
+	color: rgb(223,171,1);
+}
+.highlight-teal {
+	color: rgb(15,123,108);
+}
+.highlight-blue {
+	color: rgb(11,110,153);
+}
+.highlight-purple {
+	color: rgb(105,64,165);
+}
+.highlight-pink {
+	color: rgb(173,26,114);
+}
+.highlight-red {
+	color: rgb(224,62,62);
+}
+.highlight-gray_background {
+	background: rgb(235,236,237);
+}
+.highlight-brown_background {
+	background: rgb(233,229,227);
+}
+.highlight-orange_background {
+	background: rgb(250,235,221);
+}
+.highlight-yellow_background {
+	background: rgb(251,243,219);
+}
+.highlight-teal_background {
+	background: rgb(221,237,234);
+}
+.highlight-blue_background {
+	background: rgb(221,235,241);
+}
+.highlight-purple_background {
+	background: rgb(234,228,242);
+}
+.highlight-pink_background {
+	background: rgb(244,223,235);
+}
+.highlight-red_background {
+	background: rgb(251,228,228);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(55, 53, 47, 0.6);
+	fill: rgba(55, 53, 47, 0.6);
+}
+.block-color-brown {
+	color: rgb(100,71,58);
+	fill: rgb(100,71,58);
+}
+.block-color-orange {
+	color: rgb(217,115,13);
+	fill: rgb(217,115,13);
+}
+.block-color-yellow {
+	color: rgb(223,171,1);
+	fill: rgb(223,171,1);
+}
+.block-color-teal {
+	color: rgb(15,123,108);
+	fill: rgb(15,123,108);
+}
+.block-color-blue {
+	color: rgb(11,110,153);
+	fill: rgb(11,110,153);
+}
+.block-color-purple {
+	color: rgb(105,64,165);
+	fill: rgb(105,64,165);
+}
+.block-color-pink {
+	color: rgb(173,26,114);
+	fill: rgb(173,26,114);
+}
+.block-color-red {
+	color: rgb(224,62,62);
+	fill: rgb(224,62,62);
+}
+.block-color-gray_background {
+	background: rgb(235,236,237);
+}
+.block-color-brown_background {
+	background: rgb(233,229,227);
+}
+.block-color-orange_background {
+	background: rgb(250,235,221);
+}
+.block-color-yellow_background {
+	background: rgb(251,243,219);
+}
+.block-color-teal_background {
+	background: rgb(221,237,234);
+}
+.block-color-blue_background {
+	background: rgb(221,235,241);
+}
+.block-color-purple_background {
+	background: rgb(234,228,242);
+}
+.block-color-pink_background {
+	background: rgb(244,223,235);
+}
+.block-color-red_background {
+	background: rgb(251,228,228);
+}
+.select-value-color-default { background-color: rgba(206,205,202,0.5); }
+.select-value-color-gray { background-color: rgba(155,154,151, 0.4); }
+.select-value-color-brown { background-color: rgba(140,46,0,0.2); }
+.select-value-color-orange { background-color: rgba(245,93,0,0.2); }
+.select-value-color-yellow { background-color: rgba(233,168,0,0.2); }
+.select-value-color-green { background-color: rgba(0,135,107,0.2); }
+.select-value-color-blue { background-color: rgba(0,120,223,0.2); }
+.select-value-color-purple { background-color: rgba(103,36,222,0.2); }
+.select-value-color-pink { background-color: rgba(221,0,129,0.2); }
+.select-value-color-red { background-color: rgba(255,0,26,0.2); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="59e65ef2-4c2b-40bf-a5fc-49a6391709cf" class="page sans"><header><div class="page-header-icon undefined"><span class="icon">🚪</span></div><h1 class="page-title">LSTMs (Named entity recognition)</h1></header><div class="page-body"><figure id="204a7479-0fd8-43b5-ab84-38681ad5c857"><a href="https://www.coursera.org/learn/sequence-models-in-nlp/home/week/3" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Coursera | Online Courses &amp; Credentials From Top Educators. Join for Free | Coursera</div><div class="bookmark-description">Learn online and earn valuable credentials from top universities like Yale, Michigan, Stanford, and leading companies like Google and IBM. Join Coursera for free and transform your career with degrees, certificates, Specializations, &amp; MOOCs in data science, computer science, business, and dozens of other topics.</div></div><div class="bookmark-href"><img src="https://d3njjcbhbojbot.cloudfront.net/web/images/favicons/icon-blue-32x32.png" class="icon bookmark-icon"/>https://www.coursera.org/learn/sequence-models-in-nlp/home/week/3</div></div><img src="https://s3.amazonaws.com/coursera/media/Partner_Logos.png" class="bookmark-image"/></a></figure><div id="4eefd4da-0aa7-443d-85d8-edf44d871bef" class="column-list"><div id="fd098345-f748-4f8f-ba1d-b201efb3b712" style="width:50%" class="column"><figure id="904206d7-570e-4c0b-a9dc-2c72fdc2d4ad" class="image"><a href="LSTMs%20(Named%20entity%20recognition)%2059e65ef24c2b40bfa5fc49a6391709cf/2484E830-9013-45CE-AF8F-AACFBE6DFADB.jpeg"><img style="width:480px" src="LSTMs%20(Named%20entity%20recognition)%2059e65ef24c2b40bfa5fc49a6391709cf/2484E830-9013-45CE-AF8F-AACFBE6DFADB.jpeg"/></a></figure></div><div id="71c98390-e2d1-486c-9d86-dd746bf2653c" style="width:50%" class="column"><figure id="f804303a-b099-46bb-8d57-de78319873d0" class="image"><a href="LSTMs%20(Named%20entity%20recognition)%2059e65ef24c2b40bfa5fc49a6391709cf/1F5A17D8-A824-432E-9D33-454ED68D44B5.jpeg"><img style="width:480px" src="LSTMs%20(Named%20entity%20recognition)%2059e65ef24c2b40bfa5fc49a6391709cf/1F5A17D8-A824-432E-9D33-454ED68D44B5.jpeg"/></a></figure></div></div><h1 id="83192675-5765-4a2c-a3be-a7eb4c5c30c1" class="block-color-blue">Vanishing gradients</h1><p id="be33ec43-8515-4559-8546-e618fe2c993b" class="">With long sequence, the first element doesn&#x27;t influence a lot at the end.</p><p id="979906c0-fabf-442e-96ac-d04fec27bdf3" class="">It can be a problem if an important information is at the beginning of a sequence and the rest is useless. The important information is gone be remove be crushed by the useless info.</p><figure id="198c69b9-3849-4e95-8c68-8bc8cd2c3a1c" class="image"><a href="LSTMs%20(Named%20entity%20recognition)%2059e65ef24c2b40bfa5fc49a6391709cf/CB77B67B-075B-4A8F-9251-F31568E2D235.jpeg"><img style="width:1921px" src="LSTMs%20(Named%20entity%20recognition)%2059e65ef24c2b40bfa5fc49a6391709cf/CB77B67B-075B-4A8F-9251-F31568E2D235.jpeg"/></a></figure><p id="eb9f5962-984b-4554-934a-c6bd458ce57e" class="">
+</p><h1 id="0c5236a1-4353-4156-a671-2998c58eea4e" class="block-color-blue">LSTM</h1><p id="5585a8ec-c8e0-4636-a627-c9507722a62f" class="">LSTM have a hidden state (like all HNN) and a <mark class="highlight-teal">cell state, </mark>that act a bit like a <em>memory</em>.</p><p id="5da934f0-7f99-40a5-9c86-5f7a72c88d47" class="">It has also 3 gâtes to manage all this. In order of activation, we have:<div class="indented"><ul id="17a5946e-29df-4b94-aa97-893ffcf27176" class="bulleted-list"><li><mark class="highlight-teal">Forget gate</mark> → remove thing from the cell state</li></ul><ul id="c1a9b8f5-cfd4-45fe-8ca0-3eb6a192bb8d" class="bulleted-list"><li><mark class="highlight-teal">Input gate</mark> → add things to the cell state</li></ul><ul id="1caf752a-1d5d-43b1-87ae-2524dc517df5" class="bulleted-list"><li><mark class="highlight-teal">Output gate</mark> → with help of new the cell state, output a new <em>hidden state</em></li></ul></div></p><ul id="cafd71b5-8157-4342-a708-8e347399312b" class="toggle"><li><details open=""><summary><mark class="highlight-pink"><em>analogy</em></mark></summary><p id="54ad0c46-d338-4ec3-973d-52e50b4b91be" class="">Here we have an analogy with a phone conversation with a friend</p><figure id="dd852fbe-747f-4a6f-b716-37d83fb61455" class="image"><a href="LSTMs%20(Named%20entity%20recognition)%2059e65ef24c2b40bfa5fc49a6391709cf/4316DA78-3812-4EF9-AF95-2DD7E8AF729D.jpeg"><img style="width:288px" src="LSTMs%20(Named%20entity%20recognition)%2059e65ef24c2b40bfa5fc49a6391709cf/4316DA78-3812-4EF9-AF95-2DD7E8AF729D.jpeg"/></a></figure></details></li></ul><figure id="1763a1ca-2164-4b0c-b4e1-edf0e3483f21" class="image"><a href="LSTMs%20(Named%20entity%20recognition)%2059e65ef24c2b40bfa5fc49a6391709cf/E403A109-6E94-4014-810B-116037C0190E.jpeg"><img style="width:1815px" src="LSTMs%20(Named%20entity%20recognition)%2059e65ef24c2b40bfa5fc49a6391709cf/E403A109-6E94-4014-810B-116037C0190E.jpeg"/></a></figure><h2 id="6e1cf1fc-847b-427c-8ba5-c103228ace69" class="block-color-purple">Forget gate</h2><p id="9e5cd6ed-1ef9-4d81-ae5d-faa8a3b4abf0" class="block-color-gray"><em>Decide which parts of the cell state should be kept or tossed out.</em></p><blockquote id="64978c3c-b727-4dea-8e86-10b91d2481d4" class="">HS+I = Hidden state + input</blockquote><ol id="1d6d460a-ca0f-42b6-b963-9ea3486a024b" class="numbered-list" start="1"><li>Pass HS+I in a sigmoid function (values between 0 and 1)</li></ol><ol id="4cc7c083-a153-41b1-a31f-e6bef48e4e2a" class="numbered-list" start="2"><li>Element wise multiplication between previous cell state and the step 1 result<ul id="a210e109-3e86-47b4-93e2-2a8166855831" class="bulleted-list"><li>Step 1 value close to 0 → throw data from cell state</li></ul><ul id="59028288-2452-450d-b0e7-9c82f1da31f5" class="bulleted-list"><li>Step 1 value close to 1 → keep data from cell state</li></ul></li></ol><figure id="04e0cab3-fdf9-4fd6-af6a-4ab711f22d5e" class="image"><a href="LSTMs%20(Named%20entity%20recognition)%2059e65ef24c2b40bfa5fc49a6391709cf/Untitled.png"><img style="width:594px" src="LSTMs%20(Named%20entity%20recognition)%2059e65ef24c2b40bfa5fc49a6391709cf/Untitled.png"/></a></figure><h2 id="2333a9d6-70e0-4017-98fa-46666277f57a" class="block-color-purple">Input gate</h2><p id="c20bc81b-a95f-484a-b3c1-f64f4db00cd3" class="block-color-gray"><em>Decide how to update the cell state</em></p><blockquote id="da89e369-f920-452f-91da-8687fcc57b69" class="">HS+I = Hidden state + input</blockquote><ol id="d82a0e60-5fb2-4d4c-bf92-710636548887" class="numbered-list" start="1"><li>Pass the HS+I a sigmoid activation function (0 → not interesting | 1 → interesting)</li></ol><ol id="37aadcc3-30ea-424f-9d84-9ceec1ca56e6" class="numbered-list" start="2"><li>Pass the HS+I in a tanh function, to keep all the value between (-1, 1)</li></ol><ol id="609069a0-c0b0-4696-90ee-a0038a8c6c62" class="numbered-list" start="3"><li>Element wise multiplication between the two previous step.
+- Element not interesting are multiplied by zero (== removed)
+- Interesting one by one (== keeped). All the keepd value are between -1 and 1<ul id="20404b0a-9aae-4978-b417-b0605e99fd9f" class="bulleted-list"><li>Not interesting element are multiplied by zero (== removed)</li></ul><ul id="288e6614-fa42-45aa-8d23-1a29b2b03b04" class="bulleted-list"><li>Interesting element are multiplied by one (== kept)
+(All the kept value are between -1 and 1)</li></ul></li></ol><ol id="40ff172f-3d90-424e-834c-003f5c1df4ab" class="numbered-list" start="4"><li>Element wise addition between the <mark class="highlight-teal">cell state</mark> (already modified by the forget gate) and the result of step 3.<ul id="e72a9e30-8871-4a22-aad8-f59f255c2dfb" class="bulleted-list"><li>Not interesting element add value close to 0 (no big change)</li></ul><ul id="e4ce4ea5-4f0b-4b83-8ab0-f67572974c34" class="bulleted-list"><li>Interesting element add value between -1 and 1</li></ul></li></ol><figure id="6854eb20-004f-42d2-844a-c70099fb324f" class="image"><a href="LSTMs%20(Named%20entity%20recognition)%2059e65ef24c2b40bfa5fc49a6391709cf/Untitled%201.png"><img style="width:572px" src="LSTMs%20(Named%20entity%20recognition)%2059e65ef24c2b40bfa5fc49a6391709cf/Untitled%201.png"/></a></figure><h2 id="4561b624-e028-4186-94d7-77cd4e660162" class="block-color-purple">Output gate</h2><p id="01d7cc4e-400c-455f-8364-37eda7eee829" class="block-color-gray"><em>Compute the next hidden state</em></p><blockquote id="723408d8-de8a-485d-81e3-b8bff276582b" class="">HS+I = Hidden state + input</blockquote><ol id="b0f2cf1b-bcef-49d5-91b3-3f3dfd656c2c" class="numbered-list" start="1"><li>Pass HS+I in a sigmoid function</li></ol><ol id="7f1057a7-396b-4338-b1c4-ee61338c4b44" class="numbered-list" start="2"><li>Pass the updated cell state in a tanh function</li></ol><ol id="e1d778d7-ff3f-4d36-ab91-47366a3dc884" class="numbered-list" start="3"><li>Element wise multiplication between the two previous step</li></ol><figure id="23b2053b-ddd4-4a78-8e30-2450e085c2f9" class="image"><a href="LSTMs%20(Named%20entity%20recognition)%2059e65ef24c2b40bfa5fc49a6391709cf/Untitled%202.png"><img style="width:607px" src="LSTMs%20(Named%20entity%20recognition)%2059e65ef24c2b40bfa5fc49a6391709cf/Untitled%202.png"/></a></figure><h1 id="c5dad109-178f-4794-a690-391f89274cbc" class="block-color-blue">Named Entity Recognition</h1><p id="901f14fc-c755-4958-bb6f-3dccf603241b" class="block-color-gray"><em>or NER</em></p><p id="623e80a0-8e91-4dfb-aee9-107dc32f6f53" class="">Locates and extract entity in text (<em><mark class="highlight-yellow">like</mark></em><em> organisation, geographical place, time indicator, person...</em>).</p><figure id="acc7e67f-b59e-407b-9611-c8fa5cafca5e" class="image"><a href="LSTMs%20(Named%20entity%20recognition)%2059e65ef24c2b40bfa5fc49a6391709cf/Untitled%203.png"><img style="width:442px" src="LSTMs%20(Named%20entity%20recognition)%2059e65ef24c2b40bfa5fc49a6391709cf/Untitled%203.png"/></a></figure><p id="6434db15-c977-44d1-a371-f124c0b5dbea" class="">It&#x27;s used in search engine, recommendation, customer service, automatic trading...</p><h2 id="d517cc73-3a6a-4022-abec-9ac5f8a6dbce" class="block-color-purple">Training</h2><h3 id="65cadc19-e73c-4b79-9a30-2750e06c20c4" class="">Tokenize</h3><div id="8b48cc04-c407-4a2f-8202-dd2008ee39ff" class="column-list"><div id="0bd9f38e-bab1-4d55-8b3b-60ee7fe891fe" style="width:56.25%" class="column"><ol id="e89a392d-f65a-4d09-bf2d-14f8c7880623" class="numbered-list" start="1"><li>Assign each word a number (index in voc)</li></ol><ol id="1bfd1053-24be-4d41-9c11-f637e0bbae95" class="numbered-list" start="2"><li>Assign each entity class a number</li></ol><ol id="7754ed81-78c9-4c92-b5c1-cc1a92de61d2" class="numbered-list" start="3"><li>Assign each word to an entity class</li></ol></div><div id="e04d505a-e5b3-402e-bc76-29158721af08" style="width:43.74999999999999%" class="column"><figure id="d230636d-2990-423b-bdfa-4c8c3c2c6e40" class="image"><a href="LSTMs%20(Named%20entity%20recognition)%2059e65ef24c2b40bfa5fc49a6391709cf/Untitled%204.png"><img style="width:336px" src="LSTMs%20(Named%20entity%20recognition)%2059e65ef24c2b40bfa5fc49a6391709cf/Untitled%204.png"/></a></figure></div></div><h3 id="b87c6597-8b45-476b-8875-bb001d92d71d" class="">Padding</h3><p id="3b313fb8-6008-401f-967e-2ea96a545a72" class="">For LSTM, each input need to have <strong><mark class="highlight-teal">the same size </mark></strong>(more effictient batch precessing). We need to pad the shorter sentences with zero at the end.</p><h3 id="3acc0c50-d684-424c-b34e-ec9db309e02c" class="">Train</h3><figure id="93347195-8b63-48b8-b5db-03d3584ac138" class="image"><a href="LSTMs%20(Named%20entity%20recognition)%2059e65ef24c2b40bfa5fc49a6391709cf/Untitled%205.png"><img style="width:528px" src="LSTMs%20(Named%20entity%20recognition)%2059e65ef24c2b40bfa5fc49a6391709cf/Untitled%205.png"/></a></figure><figure id="7a744cfa-daec-4c63-be9b-5e3f7b77241f" class="image"><a href="LSTMs%20(Named%20entity%20recognition)%2059e65ef24c2b40bfa5fc49a6391709cf/Untitled%206.png"><img style="width:693px" src="LSTMs%20(Named%20entity%20recognition)%2059e65ef24c2b40bfa5fc49a6391709cf/Untitled%206.png"/></a><figcaption>Scheme of the model</figcaption></figure><pre id="bb3aa3d4-35f5-4c5b-b3f5-5a4c7b84320e" class="code"><code># Implementation with Trax
+model = tl.Serial(
+	tl.Embedding(),
+	tl.LSTM(),
+	tl.Dense(),
+	tl.LogSoftmax()
+)</code></pre><figure id="fde2bccb-1c27-4a20-9ea3-a587df2fecc4" class="image"><a href="LSTMs%20(Named%20entity%20recognition)%2059e65ef24c2b40bfa5fc49a6391709cf/CD34B7BC-20B4-4ABE-B573-3BADB399704B.jpeg"><img style="width:384px" src="LSTMs%20(Named%20entity%20recognition)%2059e65ef24c2b40bfa5fc49a6391709cf/CD34B7BC-20B4-4ABE-B573-3BADB399704B.jpeg"/></a><figcaption>The famous cube output</figcaption></figure><h2 id="d88dd740-9b3d-4db9-8363-a75a918c71fb" class="block-color-purple">Accuracy</h2><figure id="f4988c6f-dba0-4a38-ae62-129b68a33f12" class="image"><a href="LSTMs%20(Named%20entity%20recognition)%2059e65ef24c2b40bfa5fc49a6391709cf/Untitled%207.png"><img style="width:480px" src="LSTMs%20(Named%20entity%20recognition)%2059e65ef24c2b40bfa5fc49a6391709cf/Untitled%207.png"/></a></figure><figure id="41032661-fd97-44a8-8155-d04f7c7fbcbf" class="image"><a href="LSTMs%20(Named%20entity%20recognition)%2059e65ef24c2b40bfa5fc49a6391709cf/Untitled%208.png"><img style="width:576px" src="LSTMs%20(Named%20entity%20recognition)%2059e65ef24c2b40bfa5fc49a6391709cf/Untitled%208.png"/></a></figure><p id="f3a9b0dc-d481-415d-bced-51a966a950ee" class="">
+</p></div></article></body></html>

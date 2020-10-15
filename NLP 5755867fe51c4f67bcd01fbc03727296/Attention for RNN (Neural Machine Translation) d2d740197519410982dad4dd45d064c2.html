@@ -1,0 +1,639 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Attention for RNN (Neural Machine Translation)</title><style>
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	text-indent: -1.7em;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, YuMincho, "Yu Mincho", "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Songti TC", "Songti SC", "SimSun", "Nanum Myeongjo", NanumMyeongjo, Batang, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC', 'Noto Sans CJK KR'; }
+
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC', 'Noto Sans Mono CJK KR'; }
+
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, YuMincho, "Yu Mincho", "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Songti TC", "Songti SC", "SimSun", "Nanum Myeongjo", NanumMyeongjo, Batang, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC', 'Noto Sans CJK KR'; }
+
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC', 'Noto Sans Mono CJK KR'; }
+
+.highlight-default {
+}
+.highlight-gray {
+	color: rgb(155,154,151);
+}
+.highlight-brown {
+	color: rgb(100,71,58);
+}
+.highlight-orange {
+	color: rgb(217,115,13);
+}
+.highlight-yellow {
+	color: rgb(223,171,1);
+}
+.highlight-teal {
+	color: rgb(15,123,108);
+}
+.highlight-blue {
+	color: rgb(11,110,153);
+}
+.highlight-purple {
+	color: rgb(105,64,165);
+}
+.highlight-pink {
+	color: rgb(173,26,114);
+}
+.highlight-red {
+	color: rgb(224,62,62);
+}
+.highlight-gray_background {
+	background: rgb(235,236,237);
+}
+.highlight-brown_background {
+	background: rgb(233,229,227);
+}
+.highlight-orange_background {
+	background: rgb(250,235,221);
+}
+.highlight-yellow_background {
+	background: rgb(251,243,219);
+}
+.highlight-teal_background {
+	background: rgb(221,237,234);
+}
+.highlight-blue_background {
+	background: rgb(221,235,241);
+}
+.highlight-purple_background {
+	background: rgb(234,228,242);
+}
+.highlight-pink_background {
+	background: rgb(244,223,235);
+}
+.highlight-red_background {
+	background: rgb(251,228,228);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(55, 53, 47, 0.6);
+	fill: rgba(55, 53, 47, 0.6);
+}
+.block-color-brown {
+	color: rgb(100,71,58);
+	fill: rgb(100,71,58);
+}
+.block-color-orange {
+	color: rgb(217,115,13);
+	fill: rgb(217,115,13);
+}
+.block-color-yellow {
+	color: rgb(223,171,1);
+	fill: rgb(223,171,1);
+}
+.block-color-teal {
+	color: rgb(15,123,108);
+	fill: rgb(15,123,108);
+}
+.block-color-blue {
+	color: rgb(11,110,153);
+	fill: rgb(11,110,153);
+}
+.block-color-purple {
+	color: rgb(105,64,165);
+	fill: rgb(105,64,165);
+}
+.block-color-pink {
+	color: rgb(173,26,114);
+	fill: rgb(173,26,114);
+}
+.block-color-red {
+	color: rgb(224,62,62);
+	fill: rgb(224,62,62);
+}
+.block-color-gray_background {
+	background: rgb(235,236,237);
+}
+.block-color-brown_background {
+	background: rgb(233,229,227);
+}
+.block-color-orange_background {
+	background: rgb(250,235,221);
+}
+.block-color-yellow_background {
+	background: rgb(251,243,219);
+}
+.block-color-teal_background {
+	background: rgb(221,237,234);
+}
+.block-color-blue_background {
+	background: rgb(221,235,241);
+}
+.block-color-purple_background {
+	background: rgb(234,228,242);
+}
+.block-color-pink_background {
+	background: rgb(244,223,235);
+}
+.block-color-red_background {
+	background: rgb(251,228,228);
+}
+.select-value-color-default { background-color: rgba(206,205,202,0.5); }
+.select-value-color-gray { background-color: rgba(155,154,151, 0.4); }
+.select-value-color-brown { background-color: rgba(140,46,0,0.2); }
+.select-value-color-orange { background-color: rgba(245,93,0,0.2); }
+.select-value-color-yellow { background-color: rgba(233,168,0,0.2); }
+.select-value-color-green { background-color: rgba(0,135,107,0.2); }
+.select-value-color-blue { background-color: rgba(0,120,223,0.2); }
+.select-value-color-purple { background-color: rgba(103,36,222,0.2); }
+.select-value-color-pink { background-color: rgba(221,0,129,0.2); }
+.select-value-color-red { background-color: rgba(255,0,26,0.2); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="d2d74019-7519-4109-82da-d4dd45d064c2" class="page sans"><header><div class="page-header-icon undefined"><span class="icon">👀</span></div><h1 class="page-title">Attention for RNN (Neural Machine Translation)</h1></header><div class="page-body"><p id="01f96deb-b568-4385-95bd-479274af02fb" class="block-color-gray"><em>or NMT</em></p><figure id="30af5ba2-a183-4b58-ba77-3eb206dde6b1"><a href="https://www.coursera.org/learn/attention-models-in-nlp/home/week/1" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Coursera | Online Courses &amp; Credentials From Top Educators. Join for Free | Coursera</div><div class="bookmark-description">Learn online and earn valuable credentials from top universities like Yale, Michigan, Stanford, and leading companies like Google and IBM. Join Coursera for free and transform your career with degrees, certificates, Specializations, &amp; MOOCs in data science, computer science, business, and dozens of other topics.</div></div><div class="bookmark-href"><img src="https://d3njjcbhbojbot.cloudfront.net/web/images/favicons/icon-blue-32x32.png" class="icon bookmark-icon"/>https://www.coursera.org/learn/attention-models-in-nlp/home/week/1</div></div><img src="https://s3.amazonaws.com/coursera/media/Partner_Logos.png" class="bookmark-image"/></a></figure><h1 id="791fc8c5-4c2d-4689-ab76-21bb4bd2da0b" class="block-color-blue">Seq2Seq model</h1><p id="0860b25f-7640-47a5-8ae1-0f35d4232b49" class="block-color-gray"><em>by Google 2014</em></p><p id="5d5713ee-d522-423b-8646-226538f1aa34" class="">It has a <mark class="highlight-teal">variable length sentences</mark> but  a <mark class="highlight-teal">fixed length memory</mark></p><p id="d2be45d1-55b7-4437-8d6a-a9e29d9e0992" class="">Input and output can have <mark class="highlight-teal">different size</mark></p><p id="674e29e6-d328-44dc-b879-77f9783027ed" class="">It uses LSTMs or GRUs (to help with vanishing gradient)</p><figure id="cfcf93f4-0ec5-4262-8d4f-f7b4a730dfb9" class="image"><a href="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/3369EAF2-E55A-4021-858A-8BB88E9FD50C.jpeg"><img style="width:1853px" src="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/3369EAF2-E55A-4021-858A-8BB88E9FD50C.jpeg"/></a><figcaption>Seq2seq schema</figcaption></figure><h2 id="96cc7491-f662-460c-8a59-01e9a99aaa7a" class="block-color-purple">The information bottleneck</h2><p id="cafbaf7c-832d-4805-b695-f25cac04acf5" class="">Because it has a <mark class="highlight-teal">fixed length memory</mark>, it struggles with <mark class="highlight-teal">long sequence</mark> + the last word better has a bigger impact</p><figure id="927c8908-808e-4c29-b324-b102ec03547a" class="image"><a href="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/AA51D0B9-FB66-456E-B4F0-0ED5B83F9A9F.jpeg"><img style="width:1125px" src="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/AA51D0B9-FB66-456E-B4F0-0ED5B83F9A9F.jpeg"/></a></figure><p id="dbbe5309-7133-45dd-a662-d0443eddd2e5" class=""><mark class="highlight-red">Solution</mark> ⇒ <strong>focus attention</strong></p><h1 id="1c528b56-2a80-4954-af5c-242bb25cbdcf" class="block-color-blue">Alignement</h1><p id="821a91af-6159-436d-8b33-edc69ebe0d23" class="">When translating, words from the original sentence and from the translated sentence can be a bit aligned.</p><p id="1c84c6a1-1324-40fe-9591-2149296f6df7" class="">Sometimes multiple word are aligned to one, and sometimes there&#x27;s no equivalent.</p><p id="ac0dade4-329b-4f22-bcf3-422c225c00ac" class="">But it can help to <mark class="highlight-teal"><strong>focus</strong></mark> (<em>attention</em>) on the corresponding original words to find the next words to translate</p><figure id="134cca89-74b3-4a30-979e-c72486d0d702" class="image"><a href="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/BB6A335C-1C14-4509-8536-2AB73024BC2E.jpeg"><img style="width:432px" src="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/BB6A335C-1C14-4509-8536-2AB73024BC2E.jpeg"/></a></figure><ul id="ec6b8c8b-e5d0-4600-bd3d-606bd2904eee" class="toggle"><li><details open=""><summary><mark class="highlight-gray">Information from the specialisation</mark></summary><figure id="5ecc91f4-8e4d-4a2e-9a0e-b888e54cce07" class="image"><a href="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/5950F954-14F7-4E57-9A2A-D0993E241863.jpeg"><img style="width:1983px" src="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/5950F954-14F7-4E57-9A2A-D0993E241863.jpeg"/></a></figure></details></li></ul><h1 id="ba89323f-533a-41d4-b4f8-dc327725a9db" class="block-color-blue">Attention</h1><figure class="block-color-yellow_background callout" style="white-space:pre-wrap;display:flex" id="b1c1909a-c9a7-4a46-be6b-c5f50f7e7808"><div style="font-size:1.5em"><span class="icon">🧪</span></div><div style="width:100%"><a href="https://arxiv.org/pdf/1409.0473.pdf">Neural machine translation by jointly learning to align and translate</a></div></figure><p id="2ea56244-99c7-4868-bd9f-a8b4416104b4" class="">Attention layer give a weight to the encoder output. With those weight, the decoder know <mark class="highlight-teal">which words are important</mark> to translate the next word (generally, word at the same place.</p><p id="b10e78a3-4b4b-47ce-940f-de7fef7ce35e" class="">
+</p><ul id="181c7a7a-03b0-433a-a8e3-af5f3545b2a7" class="block-color-teal_background bulleted-list"><li><style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi></mrow><annotation encoding="application/x-tex">c</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">c</span></span></span></span></span><span>﻿</span></span> <mark class="highlight-orange">→</mark> the <mark class="highlight-teal">context</mark> that the decoder take as input.
+It&#x27;s the sum of all the <em>hidden state</em> of the <em>encoder</em> (<style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>h</mi><mrow><mo>&lt;</mo><msup><mi>t</mi><mo mathvariant="normal" lspace="0em" rspace="0em">′</mo></msup><mo>&gt;</mo></mrow></msup></mrow><annotation encoding="application/x-tex">h^{&lt;t&#x27;&gt;}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.94248em;vertical-align:0em;"></span><span class="mord"><span class="mord mathdefault">h</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.94248em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mrel mtight">&lt;</span><span class="mord mtight"><span class="mord mathdefault mtight">t</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8278285714285715em;"><span style="top:-2.931em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span><span class="mrel mtight">&gt;</span></span></span></span></span></span></span></span></span></span></span></span></span><span>﻿</span></span>) multiplied by it&#x27;s corresponding attention weight (<style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>α</mi><mrow><mo>&lt;</mo><mi>t</mi><mo separator="true">,</mo><msup><mi>t</mi><mo mathvariant="normal" lspace="0em" rspace="0em">′</mo></msup><mo>&gt;</mo></mrow></msup></mrow><annotation encoding="application/x-tex">\alpha^{&lt;t,t&#x27;&gt;}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.94248em;vertical-align:0em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.0037em;">α</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.94248em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mrel mtight">&lt;</span><span class="mord mathdefault mtight">t</span><span class="mpunct mtight">,</span><span class="mord mtight"><span class="mord mathdefault mtight">t</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8278285714285715em;"><span style="top:-2.931em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span><span class="mrel mtight">&gt;</span></span></span></span></span></span></span></span></span></span></span></span></span><span>﻿</span></span>)<p id="8e3f0913-e46f-458b-90a2-f7d45f040fc7" class=""><mark class="highlight-orange_background"><style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>c</mi><mrow><mo>&lt;</mo><mi>t</mi><mo>&gt;</mo></mrow></msup><mo>=</mo><munder><mo>∑</mo><msup><mi>t</mi><mo mathvariant="normal" lspace="0em" rspace="0em">′</mo></msup></munder><msup><mi>α</mi><mrow><mo>&lt;</mo><mi>t</mi><mo separator="true">,</mo><msup><mi>t</mi><mo mathvariant="normal" lspace="0em" rspace="0em">′</mo></msup><mo>&gt;</mo></mrow></msup><msup><mi>h</mi><mrow><mo>&lt;</mo><msup><mi>t</mi><mo mathvariant="normal" lspace="0em" rspace="0em">′</mo></msup><mo>&gt;</mo></mrow></msup></mrow><annotation encoding="application/x-tex">c^{&lt;t&gt;} = \sum\limits_{t&#x27;}\alpha^{&lt;t,t&#x27;&gt;} h^{&lt;t&#x27;&gt;}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7935559999999999em;vertical-align:0em;"></span><span class="mord"><span class="mord mathdefault">c</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.7935559999999999em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mrel mtight">&lt;</span><span class="mord mathdefault mtight">t</span><span class="mrel mtight">&gt;</span></span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1.936465em;vertical-align:-0.993985em;"></span><span class="mop op-limits"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.750005em;"><span style="top:-2.106015em;margin-left:0em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathdefault mtight">t</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.6828285714285715em;"><span style="top:-2.786em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span></span></span></span><span style="top:-3.0000050000000003em;"><span class="pstrut" style="height:3em;"></span><span><span class="mop op-symbol small-op">∑</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.993985em;"><span></span></span></span></span></span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.0037em;">α</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.94248em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mrel mtight">&lt;</span><span class="mord mathdefault mtight">t</span><span class="mpunct mtight">,</span><span class="mord mtight"><span class="mord mathdefault mtight">t</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8278285714285715em;"><span style="top:-2.931em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span><span class="mrel mtight">&gt;</span></span></span></span></span></span></span></span></span><span class="mord"><span class="mord mathdefault">h</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.94248em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mrel mtight">&lt;</span><span class="mord mtight"><span class="mord mathdefault mtight">t</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8278285714285715em;"><span style="top:-2.931em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span><span class="mrel mtight">&gt;</span></span></span></span></span></span></span></span></span></span></span></span></span><span>﻿</span></span></mark></p><ul id="e73b74f1-ea74-49ba-957d-aad142e1975c" class="bulleted-list"><li><style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>h</mi><mrow><mo>&lt;</mo><msup><mi>t</mi><mo mathvariant="normal" lspace="0em" rspace="0em">′</mo></msup><mo>&gt;</mo></mrow></msup></mrow><annotation encoding="application/x-tex">h^{&lt;t&#x27;&gt;}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.94248em;vertical-align:0em;"></span><span class="mord"><span class="mord mathdefault">h</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.94248em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mrel mtight">&lt;</span><span class="mord mtight"><span class="mord mathdefault mtight">t</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8278285714285715em;"><span style="top:-2.931em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span><span class="mrel mtight">&gt;</span></span></span></span></span></span></span></span></span></span></span></span></span><span>﻿</span></span> <mark class="highlight-orange">→</mark> hidden state from the <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>t</mi><mo mathvariant="normal" lspace="0em" rspace="0em">′</mo></msup></mrow><annotation encoding="application/x-tex">t&#x27;</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.751892em;vertical-align:0em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.751892em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span></span></span></span></span><span>﻿</span></span> input word (encoder)</li></ul><ul id="6c8c3c2a-cca3-4cbc-b975-92d247d52848" class="bulleted-list"><li><style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>α</mi><mrow><mo>&lt;</mo><mi>t</mi><mo separator="true">,</mo><msup><mi>t</mi><mo mathvariant="normal" lspace="0em" rspace="0em">′</mo></msup><mo>&gt;</mo></mrow></msup></mrow><annotation encoding="application/x-tex">\alpha^{&lt;t,t&#x27;&gt;}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.94248em;vertical-align:0em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.0037em;">α</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.94248em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mrel mtight">&lt;</span><span class="mord mathdefault mtight">t</span><span class="mpunct mtight">,</span><span class="mord mtight"><span class="mord mathdefault mtight">t</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8278285714285715em;"><span style="top:-2.931em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span><span class="mrel mtight">&gt;</span></span></span></span></span></span></span></span></span></span></span></span></span><span>﻿</span></span> <mark class="highlight-orange">→</mark> Context weight. Importance of the <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>t</mi><mo mathvariant="normal" lspace="0em" rspace="0em">′</mo></msup></mrow><annotation encoding="application/x-tex">t&#x27;</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.751892em;vertical-align:0em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.751892em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span></span></span></span></span><span>﻿</span></span> input word (encoder) in the prediction of the <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi></mrow><annotation encoding="application/x-tex">t</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.61508em;vertical-align:0em;"></span><span class="mord mathdefault">t</span></span></span></span></span><span>﻿</span></span> output word (decoder). <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>α</mi><mrow><mo>&lt;</mo><mi>t</mi><mo separator="true">,</mo><msup><mi>t</mi><mo mathvariant="normal" lspace="0em" rspace="0em">′</mo></msup><mo>&gt;</mo></mrow></msup></mrow><annotation encoding="application/x-tex">\alpha^{&lt;t,t&#x27;&gt;}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.94248em;vertical-align:0em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.0037em;">α</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.94248em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mrel mtight">&lt;</span><span class="mord mathdefault mtight">t</span><span class="mpunct mtight">,</span><span class="mord mtight"><span class="mord mathdefault mtight">t</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8278285714285715em;"><span style="top:-2.931em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span><span class="mrel mtight">&gt;</span></span></span></span></span></span></span></span></span></span></span></span></span><span>﻿</span></span> is all the <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>e</mi><mrow><mo>&lt;</mo><mi>t</mi><mo separator="true">,</mo><msup><mi>t</mi><mo mathvariant="normal" lspace="0em" rspace="0em">′</mo></msup><mo>&gt;</mo></mrow></msup></mrow><annotation encoding="application/x-tex">e^{&lt;t,t&#x27;&gt;}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.94248em;vertical-align:0em;"></span><span class="mord"><span class="mord mathdefault">e</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.94248em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mrel mtight">&lt;</span><span class="mord mathdefault mtight">t</span><span class="mpunct mtight">,</span><span class="mord mtight"><span class="mord mathdefault mtight">t</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8278285714285715em;"><span style="top:-2.931em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span><span class="mrel mtight">&gt;</span></span></span></span></span></span></span></span></span></span></span></span></span><span>﻿</span></span> passed in a <mark class="highlight-teal">Softmax</mark> function:<p id="8eae33bb-fde7-4886-96b7-4f41c03c2d5b" class=""><mark class="highlight-orange_background"><style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>α</mi><mrow><mo>&lt;</mo><mi>t</mi><mo separator="true">,</mo><msup><mi>t</mi><mo mathvariant="normal" lspace="0em" rspace="0em">′</mo></msup><mo>&gt;</mo></mrow></msup><mo>=</mo><mfrac><mrow><mi>exp</mi><mo>⁡</mo><mo stretchy="false">(</mo><msup><mi>e</mi><mrow><mo>&lt;</mo><mi>t</mi><mo separator="true">,</mo><msup><mi>t</mi><mo mathvariant="normal" lspace="0em" rspace="0em">′</mo></msup><mo>&gt;</mo></mrow></msup><mo stretchy="false">)</mo></mrow><mrow><munder><mo>∑</mo><msup><mi>t</mi><mo mathvariant="normal" lspace="0em" rspace="0em">′</mo></msup></munder><mi>exp</mi><mo>⁡</mo><mo stretchy="false">(</mo><msup><mi>e</mi><mrow><mo>&lt;</mo><mi>t</mi><mo separator="true">,</mo><msup><mi>t</mi><mo mathvariant="normal" lspace="0em" rspace="0em">′</mo></msup><mo>&gt;</mo></mrow></msup><mo stretchy="false">)</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">\alpha^{&lt;t,t&#x27;&gt;} = \frac{\exp(e^{&lt;t,t&#x27;&gt;})}{\sum\limits_{t&#x27;}\exp(e^{&lt;t,t&#x27;&gt;})}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.94248em;vertical-align:0em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.0037em;">α</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.94248em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mrel mtight">&lt;</span><span class="mord mathdefault mtight">t</span><span class="mpunct mtight">,</span><span class="mord mtight"><span class="mord mathdefault mtight">t</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8278285714285715em;"><span style="top:-2.931em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span><span class="mrel mtight">&gt;</span></span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:2.5175435em;vertical-align:-1.2510634999999999em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.26648em;"><span style="top:-2.56502em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mop op-limits mtight"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.7500050000000001em;"><span style="top:-1.7271664285714285em;margin-left:0em;"><span class="pstrut" style="height:2.75em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathdefault mtight">t</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8495600000000001em;"><span style="top:-2.84956em;margin-right:0.1em;"><span class="pstrut" style="height:2.55556em;"></span><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span></span></span><span style="top:-2.7500050000000003em;"><span class="pstrut" style="height:2.75em;"></span><span><span class="mop op-symbol small-op mtight">∑</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.1658335714285715em;"><span></span></span></span></span></span><span class="mspace mtight" style="margin-right:0.19516666666666668em;"></span><span class="mop mtight"><span class="mtight">e</span><span class="mtight">x</span><span class="mtight">p</span></span><span class="mopen mtight">(</span><span class="mord mtight"><span class="mord mathdefault mtight">e</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8928285714285715em;"><span style="top:-2.8928285714285713em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.6068285714285713em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mrel mtight">&lt;</span><span class="mord mathdefault mtight">t</span><span class="mpunct mtight">,</span><span class="mord mtight"><span class="mord mathdefault mtight">t</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8495600000000001em;"><span style="top:-2.84956em;margin-right:0.1em;"><span class="pstrut" style="height:2.55556em;"></span><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span><span class="mrel mtight">&gt;</span></span></span></span></span></span></span></span></span><span class="mclose mtight">)</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.485em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mop mtight"><span class="mtight">e</span><span class="mtight">x</span><span class="mtight">p</span></span><span class="mopen mtight">(</span><span class="mord mtight"><span class="mord mathdefault mtight">e</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:1.1164em;"><span style="top:-3.1164em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.6854em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mrel mtight">&lt;</span><span class="mord mathdefault mtight">t</span><span class="mpunct mtight">,</span><span class="mord mtight"><span class="mord mathdefault mtight">t</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.9595600000000001em;"><span style="top:-2.9595599999999997em;margin-right:0.1em;"><span class="pstrut" style="height:2.55556em;"></span><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span><span class="mrel mtight">&gt;</span></span></span></span></span></span></span></span></span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.2510634999999999em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span><span>﻿</span></span></mark></p><ul id="f59e2230-bcd4-4065-941d-1fc20deb326e" class="bulleted-list"><li><style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>e</mi><mrow><mo>&lt;</mo><mi>t</mi><mo separator="true">,</mo><msup><mi>t</mi><mo mathvariant="normal" lspace="0em" rspace="0em">′</mo></msup><mo>&gt;</mo></mrow></msup></mrow><annotation encoding="application/x-tex">e^{&lt;t,t&#x27;&gt;}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.94248em;vertical-align:0em;"></span><span class="mord"><span class="mord mathdefault">e</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.94248em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mrel mtight">&lt;</span><span class="mord mathdefault mtight">t</span><span class="mpunct mtight">,</span><span class="mord mtight"><span class="mord mathdefault mtight">t</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8278285714285715em;"><span style="top:-2.931em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span><span class="mrel mtight">&gt;</span></span></span></span></span></span></span></span></span></span></span></span></span><span>﻿</span></span> <mark class="highlight-orange">→</mark> calculated using a simple one layer neural network (MLP). It take as input the previous decoder hidden state (<style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>s</mi><mrow><mo>&lt;</mo><mi>t</mi><mo>−</mo><mn>1</mn><mo>&gt;</mo></mrow></msup></mrow><annotation encoding="application/x-tex">s^{&lt;t - 1&gt;}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141079999999999em;vertical-align:0em;"></span><span class="mord"><span class="mord mathdefault">s</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141079999999999em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mrel mtight">&lt;</span><span class="mord mathdefault mtight">t</span><span class="mbin mtight">−</span><span class="mord mtight">1</span><span class="mrel mtight">&gt;</span></span></span></span></span></span></span></span></span></span></span></span></span><span>﻿</span></span>) and the corresponding encoder hidden layer (<style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>h</mi><mrow><mo>&lt;</mo><msup><mi>t</mi><mo mathvariant="normal" lspace="0em" rspace="0em">′</mo></msup><mo>&gt;</mo></mrow></msup></mrow><annotation encoding="application/x-tex">h^{&lt;t&#x27;&gt;}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.94248em;vertical-align:0em;"></span><span class="mord"><span class="mord mathdefault">h</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.94248em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mrel mtight">&lt;</span><span class="mord mtight"><span class="mord mathdefault mtight">t</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8278285714285715em;"><span style="top:-2.931em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span><span class="mrel mtight">&gt;</span></span></span></span></span></span></span></span></span></span></span></span></span><span>﻿</span></span>)<figure id="c1359e70-3333-4bf9-a67f-5be804b3b31b" class="image"><a href="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/Untitled.png"><img style="width:263px" src="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/Untitled.png"/></a></figure></li></ul><p id="158cac1d-c7ca-45ad-ae5e-b4c227812f33" class="">
+</p></li></ul></li></ul><p id="e0bfb086-aa31-46aa-92ef-1565aebf1049" class="">
+</p><figure id="1068ed82-4443-484d-8973-7aa06d530ab2" class="image"><a href="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/Untitled%201.png"><img style="width:757px" src="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/Untitled%201.png"/></a><figcaption>here <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>h</mi><mrow><mo>&lt;</mo><msup><mi>t</mi><mo mathvariant="normal" lspace="0em" rspace="0em">′</mo></msup><mo>&gt;</mo></mrow></msup></mrow><annotation encoding="application/x-tex">h^{&lt;t&#x27;&gt;}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.94248em;vertical-align:0em;"></span><span class="mord"><span class="mord mathdefault">h</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.94248em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mrel mtight">&lt;</span><span class="mord mtight"><span class="mord mathdefault mtight">t</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8278285714285715em;"><span style="top:-2.931em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span><span class="mrel mtight">&gt;</span></span></span></span></span></span></span></span></span></span></span></span></span><span>﻿</span></span> is <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>a</mi><mrow><mo>&lt;</mo><msup><mi>t</mi><mo mathvariant="normal" lspace="0em" rspace="0em">′</mo></msup><mo>&gt;</mo></mrow></msup></mrow><annotation encoding="application/x-tex">a^{&lt;t&#x27;&gt;}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.94248em;vertical-align:0em;"></span><span class="mord"><span class="mord mathdefault">a</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.94248em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mrel mtight">&lt;</span><span class="mord mtight"><span class="mord mathdefault mtight">t</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8278285714285715em;"><span style="top:-2.931em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span><span class="mrel mtight">&gt;</span></span></span></span></span></span></span></span></span></span></span></span></span><span>﻿</span></span></figcaption></figure><p id="8d676b97-3976-4343-8bdd-ca37cc815ef2" class="">
+</p><p id="0d9c7cdd-9313-4eaa-9682-601758f06914" class=""><mark class="highlight-yellow"><em>Representing attention weight visually</em></mark></p><div id="96c254db-6d63-4aed-a5ef-f7b8c37ba0c8" class="column-list"><div id="1c566319-8893-478a-9041-4ed665a2e7fd" style="width:50%" class="column"><figure id="ebedbca5-897e-4c58-946c-364bf520a9b7" class="image"><a href="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/Untitled%202.png"><img style="width:400px" src="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/Untitled%202.png"/></a></figure><p id="d4aa2f26-5380-4a7e-bdc4-9a52726c5146" class="">
+</p></div><div id="5fe4448b-754b-4429-b048-370964114931" style="width:50.00000000000004%" class="column"><figure id="9e00c24d-bd42-4537-acfe-890a328df595" class="image"><a href="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/Untitled%203.png"><img style="width:388px" src="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/Untitled%203.png"/></a></figure></div></div><h2 id="38b3bbb0-5627-4499-8d4b-3d2af0ad5402" class="block-color-purple">Key, Value and Query</h2><p id="b268a66d-2d7c-4dc1-ba32-2db7f543fb26" class="">An other way to represent / compute attention:</p><ul id="a578ca3d-5796-4045-bfe2-0c9cfbc1dd03" class="bulleted-list"><li><mark class="highlight-teal">Key</mark> / <mark class="highlight-teal">Value</mark> → for MLT, both encoder&#x27;s hidden state</li></ul><ul id="b0fb1af0-da5b-42d0-babd-e3e6799aafd5" class="bulleted-list"><li><mark class="highlight-teal">Query</mark> → decoder&#x27;s hidden state</li></ul><figure id="474263d3-2054-4ed3-aa7e-8cc8a27dc740" class="image"><a href="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/Untitled%204.png"><img style="width:354px" src="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/Untitled%204.png"/></a><figcaption>Scaled Dot Product Attention</figcaption></figure><hr id="b00ba751-4623-4229-860d-46a9f95d6e28"/><ul id="6311711f-d39f-44df-b67a-a8c18bd5fffa" class="toggle"><li><details open=""><summary><mark class="highlight-gray">Information from the specialisation</mark></summary><figure class="block-color-yellow_background callout" style="white-space:pre-wrap;display:flex" id="11d3a1a5-9e19-4024-a854-ea10d3083bc0"><div style="font-size:1.5em"><span class="icon">🗝️</span></div><div style="width:100%"><em>Intuition</em>
+You&#x27;ve lost your keys: instead of searching all places of your housse, you ask someone for help. He weighs the possibility base on where the keys usually are and tells you the most likely place.</div></figure><blockquote id="869e1db4-fe21-4ed9-97e7-c2962aef816c" class="">Using a query to look in the right place and find the key</blockquote><ul id="79c4b39d-4a6a-4405-bedf-5d5fb2fea57d" class="bulleted-list"><li><mark class="highlight-teal">Key</mark> / <mark class="highlight-teal">Value</mark> → encoder&#x27;s hidden state</li></ul><ul id="cdcbdd13-579e-4d19-b64d-600371112d43" class="bulleted-list"><li><mark class="highlight-teal">Query</mark> → decoder&#x27;s hidden state</li></ul><p id="aca97626-5809-4eca-b77f-e491c1614905" class="">Dot product of query and key (<style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≈</mo></mrow><annotation encoding="application/x-tex">\approx</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.48312em;vertical-align:0em;"></span><span class="mrel">≈</span></span></span></span></span><span>﻿</span></span> mesure of Similarity. if similar value, ↗️ high value) </p><figure id="7aee5961-b9f3-458e-8e75-463b034c8b6e" class="image"><a href="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/Untitled%205.png"><img style="width:513px" src="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/Untitled%205.png"/></a></figure><p id="f86ea4a9-f1ce-474d-a5f5-7850bc9c2742" class="">It&#x27;s called &quot;Scaled dot product attention&quot;</p></details></li></ul><h2 id="f2fbf2cb-6a6b-4089-bfb0-3823a92f20b7" class="block-color-purple">Teacher forcing</h2><p id="8b02b549-01c8-471c-919e-5383b343d7f1" class="">We use the true output (<mark class="highlight-gray"><em>actual target</em></mark>) as decoder output in the attention layer and not the real decoder output (<mark class="highlight-gray"><em>prediction</em></mark>).</p><figure id="304bbd60-25af-4db7-8427-a631d2b4a270" class="image"><a href="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/Untitled%206.png"><img style="width:673px" src="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/Untitled%206.png"/></a></figure><h1 id="4ea196c0-1ab4-4aa3-92c3-7b59df6437a4" class="block-color-blue">Big steps</h1><h2 id="9be0c3a7-8b4a-4279-a87d-f20da536c330" class="block-color-purple">Setup</h2><figure id="b36dffcb-adec-4b19-94c5-e18ad38ebc73" class="image"><a href="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/Untitled%207.png"><img style="width:576px" src="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/Untitled%207.png"/></a></figure><h2 id="af0dac87-2cc0-4013-8172-95bc82c0fdca" class="block-color-purple">Training</h2><p id="0b882248-5e88-4f58-a189-fd8e85f86a55" class="">Big parts</p><ul id="a794b285-2994-41e0-8233-25da9f3e9681" class="bulleted-list"><li><mark class="highlight-teal">Input encoder</mark> → the classic encoder (RNN)</li></ul><ul id="4238f3d9-bd99-4c7d-8f0d-937cac739651" class="bulleted-list"><li><mark class="highlight-teal">pre-attention decoder</mark> → take the true prediction (y) and transform it into a &quot;query vector&quot;, a &#x27;fake&#x27; hidden state we would had if we had predict the real output (to use <strong>teacher forcing</strong>)</li></ul><ul id="4e5d8e97-395c-4e5a-9b53-04a1b244ab7a" class="bulleted-list"><li><mark class="highlight-teal">Attention</mark> → compute attention using <a href="">Query, Key, Value formula</a></li></ul><ul id="c74ddea8-81dc-476d-81c2-1024e80c5a2a" class="bulleted-list"><li><mark class="highlight-teal">Decoder</mark> → output probability that words being a word from the output vocabulary</li></ul><p id="8fcdca43-73c0-413c-8f73-db6be19de277" class="">
+</p><p id="c9e03655-34db-461c-9b26-cca0aa5d604d" class="">Steps</p><ol id="e7cdbd14-f83d-481a-ac5d-c56805858d38" class="numbered-list" start="1"><li>Send input token to the <mark class="highlight-teal">Input encoder</mark><ul id="32ac8890-1472-4dcc-90f2-be673b744b7c" class="bulleted-list"><li>Embedding / Lstm → RNN to encode the sentence</li></ul></li></ol><ol id="21993219-a4bb-44df-81ef-69228e6a1d30" class="numbered-list" start="2"><li>Send output token to the <mark class="highlight-teal">pre-attention decoder</mark><ol id="13aa12a7-b4bf-4f1f-99b6-51ea33e94d6b" class="numbered-list" start="1"><li>shift-right → we shift to the right the sentence to add a start-of-sentence token (<code>&lt;sos&gt;</code>)</li></ol><ol id="232e1b47-028b-478a-b7dd-a88f2b124bf4" class="numbered-list" start="2"><li>Embedding / LSTM → RNN to transform the true input into a &#x27;fake&#x27; hidden state we would had if we had predict the real output</li></ol></li></ol><ol id="704b9836-4521-43f6-a6e4-7e5e7cb075dd" class="numbered-list" start="3"><li>Pre-Attention Input:<ul id="8082219d-5e18-4f57-8827-3d2655885f29" class="bulleted-list"><li>Get <mark class="highlight-teal">Query</mark> (fake hidden state from pre-attention decoder) and <mark class="highlight-teal">Key</mark> / <mark class="highlight-teal">Value </mark>(hidden state from input encoder)</li></ul><ul id="0d5d474b-6070-45cc-910b-c729cd0cb35e" class="bulleted-list"><li>Create a <mark class="highlight-teal">mask</mark> to check where the padding token and the set the padding token attention probability to a very very low number</li></ul></li></ol><ol id="329980f7-abdc-45a8-8e4c-6152f3ec25c7" class="numbered-list" start="4"><li><mark class="highlight-teal">Attention</mark> + Residual: compute attention weight with the Query and the Key / Value.
+(<em>Residual: add result of the pre-attention decoder to the result of the attention layer</em>)</li></ol><ol id="f5e690e5-d6a3-49a5-a9a6-5efee1d3a2cb" class="numbered-list" start="5"><li>Select → Use mask</li></ol><ol id="3660914e-cf49-4ee5-ad26-8185888c8aea" class="numbered-list" start="6"><li><mark class="highlight-teal">Decoder</mark>:<ol id="8e6752f2-46e3-4c5e-bf5a-dd4487d74b48" class="numbered-list" start="1"><li>LSTM → RNN to predict ouput</li></ol><ol id="0ba12bcb-24b8-4e76-966c-ad30edfcd32f" class="numbered-list" start="2"><li>Dense → to give output the right dimension</li></ol><ol id="969f87d6-c968-4300-972a-bc8749094311" class="numbered-list" start="3"><li>LogSoftmax → to output probability</li></ol></li></ol><figure id="1422dffa-95a9-40e0-8276-ff7ed1a60f7f" class="image"><a href="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/Untitled%208.png"><img style="width:822px" src="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/Untitled%208.png"/></a><figcaption>wtf bro...</figcaption></figure><h1 id="50d966bf-048d-4364-9e8f-e74ea6854cba" class="block-color-blue">Evaluation</h1><h2 id="e809e621-8c94-4fca-98c3-2280c8f5ac08" class="block-color-purple">BLEU Score</h2><p id="a405a4d8-5b59-4b4a-b427-b0c307c900e6" class="">
+</p><p id="58996256-bb5e-4bc3-8480-5033042689db" class="block-color-gray"><em>Bilingual Evaluation Understudy</em></p><p id="6cdb7189-6f27-4569-95d3-7ccc0646dbe1" class="">Evaluate the quality of translation by comparing &quot;<mark class="highlight-teal">candidate</mark>&quot; translation to one or more &quot;<mark class="highlight-teal">reference</mark>&quot;.</p><p id="610407e7-77c0-46ad-ab11-76521ba9c2c7" class="">It output a score between 0 and 1:</p><ul id="e4cdc7af-c8c4-4b4b-b02b-244ba5d47a70" class="bulleted-list"><li>next to 1 → <mark class="highlight-teal">good</mark></li></ul><ul id="56b63901-a9eb-4a83-a5b3-42adac92b1f8" class="bulleted-list"><li>next to 0 → <mark class="highlight-red">bad</mark></li></ul><p id="9465cafb-2200-40ef-b88d-9be2cc670524" class="">Express sentences with n-gram, then:<div class="indented"><ol id="0b192738-9ca5-4143-96c9-b2fafa65fe29" class="numbered-list" start="1"><li>Count all unique n-gram in the candidate</li></ol><ol id="c5eae443-129a-463a-8b8a-7fa1abd550f8" class="numbered-list" start="2"><li>Count all unique n-gram (from candidate) in each reference. Take the max valu</li></ol><ol id="38935638-fa1e-4a98-aa24-934b82d292c3" class="numbered-list" start="3"><li>Clip the candidate count (step 1) with the reference count (step 2)</li></ol><ol id="5ed734f0-d369-4388-85b8-68478cb86017" class="numbered-list" start="4"><li>Sum the result count (step 3) and divide it by the number of n-gram in the candidate sentence (or sum of step 1)</li></ol></div></p><figure id="f5bb5bac-5453-4b86-8567-7d6fecda32fc" class="image"><a href="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/Untitled%209.png"><img style="width:384px" src="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/Untitled%209.png"/></a></figure><ul id="a673fa51-b208-4493-8387-18bc89fdd83b" class="toggle"><li><details open=""><summary><mark class="highlight-yellow">exemple</mark></summary><p id="bcd4cb9a-7c62-47e9-af79-8645eb177028" class="">exemple with bi-gram</p><figure id="2f799ec2-000f-4069-8e01-48e5d5a75798" class="image"><a href="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/Untitled%2010.png"><img style="width:1118px" src="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/Untitled%2010.png"/></a></figure></details></li></ul><p id="e5c8515b-abd2-4701-914c-0818f7bbe308" class="">In general, we compute the BLUE score with n-gram 1, 2, 3 and 4 and average the 4 score using <mark class="highlight-teal"><strong>brevity penalty</strong></mark>.</p><h3 id="fb23d80f-2ffa-4290-a9b2-162df719d025" class="">Caveheat</h3><ul id="fe9d5a99-91c4-4cd1-af49-6f8a8e8aa199" class="bulleted-list"><li>Doesn&#x27;t consider meaning</li></ul><ul id="7853fedf-fede-493a-942b-49087a8f6e78" class="bulleted-list"><li>Doesn&#x27;t consider sentence structure
+<mark class="highlight-yellow">exemple</mark>: &quot;<em>am hungry I</em>&quot; would have a perfect BLUE score for the reference &quot;<em>I am hungry</em>&quot;</li></ul><h2 id="312ffc1a-2cbd-4c51-9c95-87633d65b395" class="block-color-purple">ROUGE</h2><p id="bec98106-834d-4cf4-9366-9231ba6f6e73" class="block-color-gray"><em>Recall-Oriented Understudy for Gisting Evaluation</em></p><p id="097300df-9c8f-4c36-b815-46571942125a" class="">Compare n-gram overlap between &quot;<mark class="highlight-teal">system</mark>&quot; text and &quot;<mark class="highlight-teal">reference</mark>&quot; text</p><h3 id="74e23831-3bb8-44db-b3ae-ddd851c41baf" class="">Recall</h3><p id="390bc4a4-a7ec-4db6-876f-13a9c90115dc" class="">How much of the reference text is the system text capturing ?</p><figure id="a3e20de3-3663-48ca-a1e6-8f1f8903f630" class="image"><a href="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/Untitled%2011.png"><img style="width:480px" src="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/Untitled%2011.png"/></a></figure><ul id="86b2a6b7-d269-44a7-a3c0-df7af86ec81c" class="toggle"><li><details open=""><summary><mark class="highlight-yellow">exemple</mark></summary><p id="4dd86ed6-b381-4856-8a76-dd86461b28a7" class="">exemple with <strong>unigram</strong></p><figure id="94942f1b-7868-4e05-8fc1-f15ff46003ed" class="image"><a href="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/Untitled%2012.png"><img style="width:872px" src="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/Untitled%2012.png"/></a></figure></details></li></ul><h3 id="3f256e7d-92e2-48fb-a71b-f969cb38d06f" class="">Precision</h3><p id="ed0883ee-d364-4d97-9312-8451fca3ad66" class="">How much of the model text was relevant</p><figure id="7dce52a8-5d30-4964-92d7-5a1cf19ff17e" class="image"><a href="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/Untitled%2013.png"><img style="width:480px" src="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/Untitled%2013.png"/></a><figcaption>model == system</figcaption></figure><ul id="122468a1-16bc-46fe-a057-a10344ddf21c" class="toggle"><li><details open=""><summary><mark class="highlight-yellow">exemple</mark></summary><p id="4997256a-ac66-465a-99f8-da120b3518cb" class="">Exemple with <strong>unigram</strong></p><figure id="0989853c-df72-4522-b5d4-130c39de0571" class="image"><a href="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/Untitled%2014.png"><img style="width:796px" src="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/Untitled%2014.png"/></a></figure></details></li></ul><h3 id="931283bf-1305-4519-99dd-cec4d2e35797" class="">F1 score</h3><p id="e131bd48-5dc5-4c97-928b-ff8b07f541ef" class="">With recall and precison, you can for exemple, compute the F1 score to get a final score</p><figure id="f0c0638a-db65-467e-955a-1b9add1a4a1f" class="image"><a href="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/Untitled%2015.png"><img style="width:258px" src="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/Untitled%2015.png"/></a></figure><h3 id="8e917f62-1463-42ff-8003-f42fc2fa0c51" class="">Caveheat</h3><ul id="cb0f5ecd-d3c9-449b-b8dd-b6d830de240b" class="bulleted-list"><li>Doesn&#x27;t take themes / concepts into consideration (use of synonym for ex)</li></ul><p id="050c3541-d260-44ad-91d8-46a581b415e6" class="">Bad ROUGE score doesn&#x27;t necessarily mean the translation is bad (but still use-full for ML)</p><h1 id="1e9d75d4-07ff-416d-8a6b-3ff01f2b9661" class="block-color-blue">Retrieving output sentence </h1><h2 id="1cbc6dc5-751d-4415-8cee-3404e2ea8721" class="block-color-purple">Greedy decoding</h2><p id="bb2ad773-80e0-40bd-bb04-b62650546c28" class="">Select the most probable word at each step</p><p id="94b00e2a-922c-43de-b28e-c2d02db83138" class="">For longer sequence: not the best</p><h2 id="dd8c109b-eb79-4115-abb0-bfbfffe31f57" class="block-color-purple">Random sampling</h2><p id="bd4b7d0d-098d-4b33-a84d-9c88daf4d558" class="">Take randomly one of the word using the output prediction as probability of a word to be chosen.</p><ul id="e8650d8e-214d-461d-b114-99bf4f1eacfc" class="bulleted-list"><li>Temperature → parameter that choose between more or less randomness<ul id="4778f403-941d-4307-a5f5-1a02de238c28" class="bulleted-list"><li>↙️  low temperature: More confident, less error</li></ul><ul id="18274050-5bcf-45a2-a868-b5ad2249ccd4" class="bulleted-list"><li>↗️  high temperature: More excited/random (fun), but more error</li></ul></li></ul><h2 id="eec50efd-389c-48d9-af39-0003489d87c9" class="block-color-purple">Beam serach decoding</h2><p id="c739a275-bf42-42fd-8de8-1eeb386131b6" class="">Select the B best words at each step</p><p id="b2340f37-afd0-4ede-bb84-6b2712209aec" class="">Then take the biggest probability to produce the next B words</p><figure id="bbc81ff6-debc-45ac-b3c5-e6be85642f8a" class="image"><a href="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/Untitled%2016.png"><img style="width:559px" src="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/Untitled%2016.png"/></a></figure><h3 id="ca960d1e-e6a6-4606-bc00-db7dce5a4d8a" class="">Problems</h3><ul id="f549556d-3ed6-438c-bd56-24df8e1e5893" class="bulleted-list"><li>Carry more wight than single tokens</li></ul><ul id="80ab1978-7a08-4037-95b3-ee8a7e01badf" class="bulleted-list"><li>Translation problem with unclean data (<mark class="highlight-yellow">ex</mark>: with lot&#x27;s of &quot;hmm&quot; in it, &quot;hmm&quot; can appear a lot and replace valid words)</li></ul><h2 id="a58c49ad-821e-4d00-adc9-a0cf9f2185ea" class="block-color-purple">Minimum Bayes Risk decoding</h2><p id="64ca3ce2-afea-40b2-9473-8baa788707bd" class="block-color-gray">or <em>MBR</em></p><p id="7e210960-e0e9-4a96-a7b5-72b73a26a89f" class="">
+</p><figure id="bf625e27-0353-4b04-8c7f-7df60539906c" class="image"><a href="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/Untitled%2017.png"><img style="width:705px" src="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/Untitled%2017.png"/></a></figure><figure id="6e540fb9-69de-4e27-bb24-da50e2cf85f0" class="image"><a href="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/Untitled%2018.png"><img style="width:727px" src="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2/Untitled%2018.png"/></a></figure><hr id="9e8b894f-4b50-4a9f-97ce-d31842a25892"/><h1 id="14b48f33-69df-40ca-9c9f-924eb4b992c9" class="block-color-pink">Other references</h1><p id="778817f3-ba75-450f-adc6-9bbd7f389a41" class="">Le bro Andrew NG ! 🤝 💞</p><h3 id="19d9b705-23b2-4c39-ae49-b1e03ec1f014" class="">Attention</h3><div id="d4937672-450d-4b92-ac68-af7a7aeb6f58" class="column-list"><div id="290065b6-2c51-46cb-b3e4-2f5d1d370ee8" style="width:50%" class="column"></div><div id="88fdc71f-ca19-4f71-8e69-aed90dc3b896" style="width:50%" class="column"></div></div><h3 id="7f036db8-3033-4377-8bc9-283d8bbc4a7a" class="">Blue score</h3><figure id="58141df8-aa09-4e82-a769-eeef9b04b1b2"><div class="source"><a href="https://www.youtube.com/watch?v=DejHQYAGb7Q">https://www.youtube.com/watch?v=DejHQYAGb7Q</a></div></figure></div></article></body></html>

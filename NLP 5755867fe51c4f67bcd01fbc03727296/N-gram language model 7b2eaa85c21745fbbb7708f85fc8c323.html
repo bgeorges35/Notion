@@ -1,0 +1,632 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>N-gram language model</title><style>
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	text-indent: -1.7em;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, YuMincho, "Yu Mincho", "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Songti TC", "Songti SC", "SimSun", "Nanum Myeongjo", NanumMyeongjo, Batang, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC', 'Noto Sans CJK KR'; }
+
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC', 'Noto Sans Mono CJK KR'; }
+
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, YuMincho, "Yu Mincho", "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Songti TC", "Songti SC", "SimSun", "Nanum Myeongjo", NanumMyeongjo, Batang, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC', 'Noto Sans CJK KR'; }
+
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC', 'Noto Sans Mono CJK KR'; }
+
+.highlight-default {
+}
+.highlight-gray {
+	color: rgb(155,154,151);
+}
+.highlight-brown {
+	color: rgb(100,71,58);
+}
+.highlight-orange {
+	color: rgb(217,115,13);
+}
+.highlight-yellow {
+	color: rgb(223,171,1);
+}
+.highlight-teal {
+	color: rgb(15,123,108);
+}
+.highlight-blue {
+	color: rgb(11,110,153);
+}
+.highlight-purple {
+	color: rgb(105,64,165);
+}
+.highlight-pink {
+	color: rgb(173,26,114);
+}
+.highlight-red {
+	color: rgb(224,62,62);
+}
+.highlight-gray_background {
+	background: rgb(235,236,237);
+}
+.highlight-brown_background {
+	background: rgb(233,229,227);
+}
+.highlight-orange_background {
+	background: rgb(250,235,221);
+}
+.highlight-yellow_background {
+	background: rgb(251,243,219);
+}
+.highlight-teal_background {
+	background: rgb(221,237,234);
+}
+.highlight-blue_background {
+	background: rgb(221,235,241);
+}
+.highlight-purple_background {
+	background: rgb(234,228,242);
+}
+.highlight-pink_background {
+	background: rgb(244,223,235);
+}
+.highlight-red_background {
+	background: rgb(251,228,228);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(55, 53, 47, 0.6);
+	fill: rgba(55, 53, 47, 0.6);
+}
+.block-color-brown {
+	color: rgb(100,71,58);
+	fill: rgb(100,71,58);
+}
+.block-color-orange {
+	color: rgb(217,115,13);
+	fill: rgb(217,115,13);
+}
+.block-color-yellow {
+	color: rgb(223,171,1);
+	fill: rgb(223,171,1);
+}
+.block-color-teal {
+	color: rgb(15,123,108);
+	fill: rgb(15,123,108);
+}
+.block-color-blue {
+	color: rgb(11,110,153);
+	fill: rgb(11,110,153);
+}
+.block-color-purple {
+	color: rgb(105,64,165);
+	fill: rgb(105,64,165);
+}
+.block-color-pink {
+	color: rgb(173,26,114);
+	fill: rgb(173,26,114);
+}
+.block-color-red {
+	color: rgb(224,62,62);
+	fill: rgb(224,62,62);
+}
+.block-color-gray_background {
+	background: rgb(235,236,237);
+}
+.block-color-brown_background {
+	background: rgb(233,229,227);
+}
+.block-color-orange_background {
+	background: rgb(250,235,221);
+}
+.block-color-yellow_background {
+	background: rgb(251,243,219);
+}
+.block-color-teal_background {
+	background: rgb(221,237,234);
+}
+.block-color-blue_background {
+	background: rgb(221,235,241);
+}
+.block-color-purple_background {
+	background: rgb(234,228,242);
+}
+.block-color-pink_background {
+	background: rgb(244,223,235);
+}
+.block-color-red_background {
+	background: rgb(251,228,228);
+}
+.select-value-color-default { background-color: rgba(206,205,202,0.5); }
+.select-value-color-gray { background-color: rgba(155,154,151, 0.4); }
+.select-value-color-brown { background-color: rgba(140,46,0,0.2); }
+.select-value-color-orange { background-color: rgba(245,93,0,0.2); }
+.select-value-color-yellow { background-color: rgba(233,168,0,0.2); }
+.select-value-color-green { background-color: rgba(0,135,107,0.2); }
+.select-value-color-blue { background-color: rgba(0,120,223,0.2); }
+.select-value-color-purple { background-color: rgba(103,36,222,0.2); }
+.select-value-color-pink { background-color: rgba(221,0,129,0.2); }
+.select-value-color-red { background-color: rgba(255,0,26,0.2); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="7b2eaa85-c217-45fb-bb77-08f85fc8c323" class="page sans"><header><div class="page-header-icon undefined"><span class="icon">🍷</span></div><h1 class="page-title">N-gram language model</h1></header><div class="page-body"><figure id="dcc08bac-b3fa-4f41-83e7-b40673b0aabe"><a href="https://www.coursera.org/learn/probabilistic-models-in-nlp/home/week/3" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Coursera | Online Courses &amp; Credentials From Top Educators. Join for Free | Coursera</div><div class="bookmark-description">Learn online and earn valuable credentials from top universities like Yale, Michigan, Stanford, and leading companies like Google and IBM. Join Coursera for free and transform your career with degrees, certificates, Specializations, &amp; MOOCs in data science, computer science, business, and dozens of other topics.</div></div><div class="bookmark-href"><img src="https://d3njjcbhbojbot.cloudfront.net/web/images/favicons/icon-blue-32x32.png" class="icon bookmark-icon"/>https://www.coursera.org/learn/probabilistic-models-in-nlp/home/week/3</div></div><img src="https://s3.amazonaws.com/coursera/media/Partner_Logos.png" class="bookmark-image"/></a></figure><h1 id="22f64bd5-8c69-4755-b0cf-bce5ffcfd84f" class="block-color-blue">N-gram</h1><h2 id="d587939d-4aef-4bc1-80cf-92fc5c9670e1" class="block-color-purple">Définition</h2><p id="a89e0441-ccc3-4a57-a0ca-d1d93f17d7ec" class="">A list of N word that appear together in the corpus</p><figure id="66269e21-6133-41b5-8f3b-71a682f8ec42" class="image"><a href="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/D69F976F-B99A-4A95-9A8F-D72487D6C0EB.jpeg"><img style="width:1790px" src="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/D69F976F-B99A-4A95-9A8F-D72487D6C0EB.jpeg"/></a></figure><h2 id="aac6af30-e7cb-4506-97d2-05fa965318e5" class="block-color-purple">Notation</h2><p id="12e51525-f8e3-46f9-8a38-3855e0369c52" class="">We use subscript and superscript to write the limit: <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>w</mi><mrow><mi>s</mi><mi>t</mi><mi>a</mi><mi>r</mi><mi>t</mi></mrow><mrow><mi>e</mi><mi>n</mi><mi>d</mi></mrow></msubsup></mrow><annotation encoding="application/x-tex">w_{start}^{end}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.096108em;vertical-align:-0.247em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.849108em;"><span style="top:-2.4530000000000003em;margin-left:-0.02691em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">s</span><span class="mord mathdefault mtight">t</span><span class="mord mathdefault mtight">a</span><span class="mord mathdefault mtight" style="margin-right:0.02778em;">r</span><span class="mord mathdefault mtight">t</span></span></span></span><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">e</span><span class="mord mathdefault mtight">n</span><span class="mord mathdefault mtight">d</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.247em;"><span></span></span></span></span></span></span></span></span></span></span><span>﻿</span></span></p><p id="a4bbdef3-0753-4aa4-8bdb-d54828b6aee0" class=""><em>(A bit like python slicing: </em><em><code>W[start:end + 1]</code></em><em>)</em></p><figure id="bb5eac7c-5f0c-4052-a96f-951d341aeaa8" class="image"><a href="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/6F472E39-8076-4720-B910-A72947AF8F3D.jpeg"><img style="width:1814px" src="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/6F472E39-8076-4720-B910-A72947AF8F3D.jpeg"/></a></figure><h2 id="9ec78fd4-8711-4843-b672-120fe3a30a3c" class="block-color-purple">Probability</h2><p id="4aaa4741-1402-47a3-b6f0-d61507917a8c" class="">Count of all the words divided by the count of all the word before:</p><p id="2677fa43-42c6-43d4-9248-0828cfa4ceef" class=""><style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false">(</mo><msub><mi>w</mi><mi>n</mi></msub><mi mathvariant="normal">∣</mi><msubsup><mi>w</mi><mn>1</mn><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msubsup><mo stretchy="false">)</mo><mo>=</mo><mfrac><mrow><mi>C</mi><mo stretchy="false">(</mo><msubsup><mi>w</mi><mn>1</mn><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msubsup><msub><mi>w</mi><mi>n</mi></msub><mo stretchy="false">)</mo></mrow><mrow><mi>C</mi><mo stretchy="false">(</mo><msubsup><mi>w</mi><mn>1</mn><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msubsup><mo stretchy="false">)</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">P(w_n|w_{1}^{n - 1}) = \frac{C(w_{1}^{n-1}w_n)}{C(w_{1}^{n-1})}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.120547em;vertical-align:-0.266308em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="mopen">(</span><span class="mord"><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.02691em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord">∣</span><span class="mord"><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.854239em;"><span style="top:-2.433692em;margin-left:-0.02691em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span></span></span></span><span style="top:-3.1031310000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">n</span><span class="mbin mtight">−</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.266308em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1.7674249999999998em;vertical-align:-0.6333049999999999em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.1341199999999998em;"><span style="top:-2.584755em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.07153em;">C</span><span class="mopen mtight">(</span><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8646357142857143em;"><span style="top:-2.188485714285714em;margin-left:-0.02691em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mtight">1</span></span></span></span><span style="top:-2.904321428571429em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">n</span><span class="mbin mtight">−</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.31151428571428574em;"><span></span></span></span></span></span></span><span class="mclose mtight">)</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.5102em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.07153em;">C</span><span class="mopen mtight">(</span><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8913142857142857em;"><span style="top:-2.214em;margin-left:-0.02691em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mtight">1</span></span></span></span><span style="top:-2.931em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">n</span><span class="mbin mtight">−</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286em;"><span></span></span></span></span></span></span><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.16454285714285719em;"><span style="top:-2.357em;margin-left:-0.02691em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathdefault mtight">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.6333049999999999em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span><span>﻿</span></span></p><ul id="a62c543d-058c-4f9b-a3b8-106e22617a2d" class="bulleted-list"><li><style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mo stretchy="false">(</mo><msubsup><mi>w</mi><mn>1</mn><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msubsup><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">C(w_{1}^{n-1})</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.120547em;vertical-align:-0.266308em;"></span><span class="mord mathdefault" style="margin-right:0.07153em;">C</span><span class="mopen">(</span><span class="mord"><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.854239em;"><span style="top:-2.433692em;margin-left:-0.02691em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span></span></span></span><span style="top:-3.1031310000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">n</span><span class="mbin mtight">−</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.266308em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span></span><span>﻿</span></span> </li></ul><figure id="164222af-57b3-4b67-a3f7-43ccd02a3e50" class="image"><a href="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/A14687B4-4F64-4A26-8641-4736E29ACAF7.jpeg"><img style="width:1850px" src="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/A14687B4-4F64-4A26-8641-4736E29ACAF7.jpeg"/></a></figure><ul id="530cd689-c28a-422d-8e9a-789c8991daaf" class="toggle"><li><details open=""><summary><mark class="highlight-yellow">Exemples</mark></summary><figure id="cf6c901b-9440-4904-b12f-319222d74ab6" class="image"><a href="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/E1145CB1-502B-493E-9DB7-B883C2C33D32.jpeg"><img style="width:1925px" src="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/E1145CB1-502B-493E-9DB7-B883C2C33D32.jpeg"/></a></figure><figure id="a22348f4-9625-4a50-897a-4070a896d849" class="image"><a href="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/FA3CE711-24EE-40FE-AB4B-460F0004F22F.jpeg"><img style="width:1526px" src="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/FA3CE711-24EE-40FE-AB4B-460F0004F22F.jpeg"/></a></figure></details></li></ul><h1 id="e210d352-da5e-4bda-82ad-55707c663846" class="block-color-blue">Probability of sequence</h1><h3 id="95a4fd4f-5e3d-4a97-bf91-5fe85df34b40" class="block-color-purple">&quot;Real&quot; formula</h3><p id="60bec20f-bf7d-4b09-b445-57b6565b51ad" class=""><em>Justification, why use an estimation</em></p><ul id="8e58673d-9335-46c2-b08d-626ef4ebfcfa" class="toggle"><li><details open=""><summary><mark class="highlight-gray">hidden</mark></summary><p id="a0f6eff1-7c65-4c5b-880c-a05fa6072ac4" class="">Using the chaine rule</p><figure id="b46f722d-24fb-44ff-bbe7-ab181fad705c" class="image"><a href="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/Untitled.png"><img style="width:480px" src="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/Untitled.png"/></a></figure><p id="d771edce-334a-476f-866c-5dc7d289029a" class="">Probability of each word given all the words that came before</p><figure id="7ea51912-528a-4a65-9d34-382df86a108c" class="image"><a href="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/Untitled%201.png"><img style="width:576px" src="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/Untitled%201.png"/></a></figure><figure class="block-color-orange_background callout" style="white-space:pre-wrap;display:flex" id="cf5b5301-cc80-4eae-8d70-5ff6c4274c8f"><div style="font-size:1.5em"><span class="icon">😱</span></div><div style="width:100%"><strong>With long sentence, it&#x27;s unlikely to have big word sequence in the corpus. Those big words sequences counts are likely to be 0</strong></div></figure><figure id="42be542b-fab5-4eda-9a85-c823a8865639" class="image"><a href="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/Untitled%202.png"><img style="width:692px" src="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/Untitled%202.png"/></a></figure></details></li></ul><h3 id="9921ee9b-936f-454b-9c37-7f2e8ca75803" class="block-color-purple">Estimation</h3><p id="cf4aefe7-e4cc-4951-9200-9ac7694401b1" class="">Instead of looking at all the previous word, we will look at the <mark class="highlight-teal">n previous word</mark></p><p id="f0813773-2e3a-4a9b-8a1b-e72fcfe5538c" class="">(<em>Markov assumption</em>: The probability of each word depend only on it&#x27;s limited history of length N)</p><p id="ed8fa376-3cb0-4695-9126-015969f68930" class="">
+</p><p id="114ea6e4-33ef-4c74-844b-73c58235b72d" class="">The formula for a <mark class="highlight-teal">single word</mark> is now:</p><figure class="block-color-red_background callout" style="white-space:pre-wrap;display:flex" id="7f1c23de-422d-4c6e-9873-58473128ad90"><div style="font-size:1.5em"><span class="icon">📐</span></div><div style="width:100%"><style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false">(</mo><msub><mi>w</mi><mi>n</mi></msub><mi mathvariant="normal">∣</mi><msubsup><mi>w</mi><mn>1</mn><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msubsup><mo stretchy="false">)</mo><mo>≈</mo><mi>P</mi><mo stretchy="false">(</mo><msub><mi>w</mi><mi>n</mi></msub><mi mathvariant="normal">∣</mi><msubsup><mi>w</mi><mrow><mi>n</mi><mo>−</mo><mi>N</mi><mo>+</mo><mn>1</mn></mrow><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msubsup><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">P(w_n|w^{n-1}_1) \approx P(w_n|w_{n-N+1}^{n - 1})</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.120547em;vertical-align:-0.266308em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="mopen">(</span><span class="mord"><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.02691em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord">∣</span><span class="mord"><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.854239em;"><span style="top:-2.433692em;margin-left:-0.02691em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span><span style="top:-3.1031310000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">n</span><span class="mbin mtight">−</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.266308em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">≈</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1.2061009999999999em;vertical-align:-0.351862em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="mopen">(</span><span class="mord"><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.02691em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord">∣</span><span class="mord"><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.854239em;"><span style="top:-2.406469em;margin-left:-0.02691em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">n</span><span class="mbin mtight">−</span><span class="mord mathdefault mtight" style="margin-right:0.10903em;">N</span><span class="mbin mtight">+</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.1031310000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">n</span><span class="mbin mtight">−</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.351862em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span></span><span>﻿</span></span></div></figure><ul id="521569e0-b932-442f-a223-ae772cb601da" class="bulleted-list"><li><style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false">(</mo><msub><mi>w</mi><mi>n</mi></msub><mi mathvariant="normal">∣</mi><msubsup><mi>w</mi><mn>1</mn><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msubsup><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">P(w_n|w^{n-1}_1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.120547em;vertical-align:-0.266308em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="mopen">(</span><span class="mord"><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.02691em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord">∣</span><span class="mord"><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.854239em;"><span style="top:-2.433692em;margin-left:-0.02691em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span><span style="top:-3.1031310000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">n</span><span class="mbin mtight">−</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.266308em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span></span><span>﻿</span></span> <mark class="highlight-orange">→</mark> probability of the <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">n</span></span></span></span></span><span>﻿</span></span> word, given all the word before (<style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn></mrow><annotation encoding="application/x-tex">1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1</span></span></span></span></span><span>﻿</span></span> → <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n - 1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.66666em;vertical-align:-0.08333em;"></span><span class="mord mathdefault">n</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1</span></span></span></span></span><span>﻿</span></span>)</li></ul><ul id="b0086e3c-1faa-4b34-8466-0b21454fdaa4" class="bulleted-list"><li><style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false">(</mo><msub><mi>w</mi><mi>n</mi></msub><mi mathvariant="normal">∣</mi><msubsup><mi>w</mi><mrow><mi>n</mi><mo>−</mo><mi>N</mi><mo>+</mo><mn>1</mn></mrow><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msubsup><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">P(w_n|w_{n-N+1}^{n - 1})</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.2061009999999999em;vertical-align:-0.351862em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="mopen">(</span><span class="mord"><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.02691em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord">∣</span><span class="mord"><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.854239em;"><span style="top:-2.406469em;margin-left:-0.02691em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">n</span><span class="mbin mtight">−</span><span class="mord mathdefault mtight" style="margin-right:0.10903em;">N</span><span class="mbin mtight">+</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.1031310000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">n</span><span class="mbin mtight">−</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.351862em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span></span><span>﻿</span></span> <mark class="highlight-orange">→</mark> probability of the <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">n</span></span></span></span></span><span>﻿</span></span> word, given the <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">N - 1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.76666em;vertical-align:-0.08333em;"></span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1</span></span></span></span></span><span>﻿</span></span> words before ( <code>w_lst[n - (N - 1):n]</code>)<p id="8c6b6620-80e5-4310-80ae-bbf701cf95a7" class="">with <mark class="highlight-red_background"><style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false">(</mo><msub><mi>w</mi><mi>n</mi></msub><mi mathvariant="normal">∣</mi><msubsup><mi>w</mi><mrow><mi>n</mi><mo>−</mo><mi>N</mi><mo>+</mo><mn>1</mn></mrow><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msubsup><mo stretchy="false">)</mo><mo>=</mo><mfrac><mrow><mi>C</mi><mo stretchy="false">(</mo><msubsup><mi>w</mi><mrow><mi>n</mi><mo>−</mo><mi>N</mi><mo>+</mo><mn>1</mn></mrow><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msubsup><mo separator="true">,</mo><msub><mi>w</mi><mi>n</mi></msub><mo stretchy="false">)</mo></mrow><mrow><mi>C</mi><mo stretchy="false">(</mo><msubsup><mi>w</mi><mrow><mi>n</mi><mo>−</mo><mi>N</mi><mo>+</mo><mn>1</mn></mrow><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msubsup><mo stretchy="false">)</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">P(w_n|w_{n-N+1}^{n - 1}) = \frac{C(w_{n-N+1}^{n-1},w_n)}{C(w_{n-N+1}^{n-1})}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.2061009999999999em;vertical-align:-0.351862em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="mopen">(</span><span class="mord"><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.02691em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord">∣</span><span class="mord"><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.854239em;"><span style="top:-2.406469em;margin-left:-0.02691em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">n</span><span class="mbin mtight">−</span><span class="mord mathdefault mtight" style="margin-right:0.10903em;">N</span><span class="mbin mtight">+</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.1031310000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">n</span><span class="mbin mtight">−</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.351862em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1.88883em;vertical-align:-0.6944149999999999em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.194415em;"><span style="top:-2.5847550000000004em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.07153em;">C</span><span class="mopen mtight">(</span><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8646357142857142em;"><span style="top:-2.160707142857143em;margin-left:-0.02691em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">n</span><span class="mbin mtight">−</span><span class="mord mathdefault mtight" style="margin-right:0.10903em;">N</span><span class="mbin mtight">+</span><span class="mord mtight">1</span></span></span></span><span style="top:-2.9043214285714285em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">n</span><span class="mbin mtight">−</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.39881428571428573em;"><span></span></span></span></span></span></span><span class="mclose mtight">)</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.570495em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.07153em;">C</span><span class="mopen mtight">(</span><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8913142857142857em;"><span style="top:-2.1873857142857145em;margin-left:-0.02691em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">n</span><span class="mbin mtight">−</span><span class="mord mathdefault mtight" style="margin-right:0.10903em;">N</span><span class="mbin mtight">+</span><span class="mord mtight">1</span></span></span></span><span style="top:-2.931em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">n</span><span class="mbin mtight">−</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3721357142857143em;"><span></span></span></span></span></span></span><span class="mpunct mtight">,</span><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.16454285714285719em;"><span style="top:-2.357em;margin-left:-0.02691em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathdefault mtight">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.6944149999999999em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span><span>﻿</span></span></mark><div class="indented"><ul id="1f0c588a-51ae-41a4-9793-2f5e6be466fb" class="bulleted-list"><li><style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mo stretchy="false">(</mo><msubsup><mi>w</mi><mrow><mi>n</mi><mo>−</mo><mi>N</mi><mo>+</mo><mn>1</mn></mrow><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msubsup><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">C(w_{n-N+1}^{n-1})</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.2061009999999999em;vertical-align:-0.351862em;"></span><span class="mord mathdefault" style="margin-right:0.07153em;">C</span><span class="mopen">(</span><span class="mord"><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.854239em;"><span style="top:-2.406469em;margin-left:-0.02691em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">n</span><span class="mbin mtight">−</span><span class="mord mathdefault mtight" style="margin-right:0.10903em;">N</span><span class="mbin mtight">+</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.1031310000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">n</span><span class="mbin mtight">−</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.351862em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span></span><span>﻿</span></span> <mark class="highlight-orange">→</mark> all <mark class="highlight-red"><em><style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi></mrow><annotation encoding="application/x-tex">N</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span></span></span></span></span><span>﻿</span></span></em></mark><mark class="highlight-red"><em><strong>-gram</strong></em></mark> possible starting by <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>w</mi><mrow><mi>n</mi><mo>−</mo><mi>N</mi><mo>+</mo><mn>1</mn></mrow><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msubsup></mrow><annotation encoding="application/x-tex">w_{n-N+1}^{n-1}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.2061009999999999em;vertical-align:-0.351862em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.854239em;"><span style="top:-2.406469em;margin-left:-0.02691em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">n</span><span class="mbin mtight">−</span><span class="mord mathdefault mtight" style="margin-right:0.10903em;">N</span><span class="mbin mtight">+</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.1031310000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">n</span><span class="mbin mtight">−</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.351862em;"><span></span></span></span></span></span></span></span></span></span></span><span>﻿</span></span> (there must be a word after to have a <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi></mrow><annotation encoding="application/x-tex">N</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span></span></span></span></span><span>﻿</span></span> length and to count)</li></ul></div></p><p id="4f6a8c5e-a45e-426f-800c-1b322b296fb3" class="">
+</p></li></ul><p id="f41c6280-b34e-4b69-9e5b-992a69c214df" class="">
+</p><p id="4b9e8885-08cb-42ae-85ee-0ead241e7a7d" class="">The formula for the <mark class="highlight-teal">entire sequence</mark> (of length <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">n</span></span></span></span></span><span>﻿</span></span>) is</p><figure class="block-color-red_background callout" style="white-space:pre-wrap;display:flex" id="0d8e2065-b332-458b-a5ac-af9af04d6ab5"><div style="font-size:1.5em"><span class="icon">📐</span></div><div style="width:100%"><style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false">(</mo><msubsup><mi>w</mi><mn>1</mn><mi>n</mi></msubsup><mo stretchy="false">)</mo><mo>≈</mo><msubsup><mo>∏</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></msubsup><mi>P</mi><mo stretchy="false">(</mo><msub><mi>w</mi><mi>n</mi></msub><mi mathvariant="normal">∣</mi><msubsup><mi>w</mi><mrow><mi>n</mi><mo>−</mo><mi>N</mi><mo>+</mo><mn>1</mn></mrow><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msubsup><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">P(w_1^n)\approx \prod\limits^n_{i=1} P(w_n|w_{n-N+1}^{n - 1})</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="mopen">(</span><span class="mord"><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.664392em;"><span style="top:-2.4518920000000004em;margin-left:-0.02691em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.24810799999999997em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">≈</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:2.329066em;vertical-align:-0.9776689999999999em;"></span><span class="mop op-limits"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3513970000000004em;"><span style="top:-2.122331em;margin-left:0em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">i</span><span class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.0000050000000003em;"><span class="pstrut" style="height:3em;"></span><span><span class="mop op-symbol small-op">∏</span></span></span><span style="top:-3.950005em;margin-left:0em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.9776689999999999em;"><span></span></span></span></span></span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="mopen">(</span><span class="mord"><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.02691em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord">∣</span><span class="mord"><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.854239em;"><span style="top:-2.406469em;margin-left:-0.02691em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">n</span><span class="mbin mtight">−</span><span class="mord mathdefault mtight" style="margin-right:0.10903em;">N</span><span class="mbin mtight">+</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.1031310000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">n</span><span class="mbin mtight">−</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.351862em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span></span><span>﻿</span></span></div></figure><p id="e04a63c9-f654-4ed9-90fb-bbeeed226464" class="">The product of all the approximated probability of each word</p><p id="8841191b-6ce2-4690-86f9-555ee750bb09" class="">
+</p><figure id="7ad09150-f958-438b-8bf3-13ec5db72065" class="image"><a href="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/9FF054CD-DCC9-4C21-ABD7-C61A47C61DAB.jpeg"><img style="width:1953px" src="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/9FF054CD-DCC9-4C21-ABD7-C61A47C61DAB.jpeg"/></a></figure><ul id="1f7f9ce3-9c0b-4584-b21a-ab140c838125" class="toggle"><li><details open=""><summary><mark class="highlight-yellow">exemples</mark></summary><figure id="260ad793-c78b-4dbd-b567-faadc18b9eb7" class="image"><a href="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/6E50A8FD-92F1-4567-BF03-A9937FBBB09D.jpeg"><img style="width:1974px" src="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/6E50A8FD-92F1-4567-BF03-A9937FBBB09D.jpeg"/></a></figure></details></li></ul><h1 id="dc2b23b4-a408-43f9-8cc1-54c63bf064c9" class="block-color-blue">Probability of corpus</h1><h3 id="20b07c93-6406-46ca-8b4d-84a04f6f9f2a" class="block-color-purple">Start tokens</h3><p id="a1b93ad1-55d1-4c1c-bbf9-4b8872ab509e" class="">The first word doesn&#x27;t have <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi></mrow><annotation encoding="application/x-tex">N</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span></span></span></span></span><span>﻿</span></span> word before him to follow the formula, so we add <mark class="highlight-teal"><style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">N-1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.76666em;vertical-align:-0.08333em;"></span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1</span></span></span></span></span><span>﻿</span></span></mark><mark class="highlight-teal"> start tokens</mark> before (<code>&lt;s&gt;</code>)</p><ul id="ab19393a-fffd-4406-9ff0-bfc2f68554fb" class="toggle"><li><details open=""><summary><mark class="highlight-yellow">exemples</mark></summary><figure id="3bd7dee8-b4e1-4f18-b783-b3459873688d" class="image"><a href="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/Untitled%203.png"><img style="width:671px" src="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/Untitled%203.png"/></a></figure></details></li></ul><h3 id="0594c45a-9bb1-42e7-bd0d-f1842a269efc" class="block-color-purple">End tokens</h3><p id="7b456e10-9cdb-4889-b393-520e0f020cff" class="">The last words can&#x27;t count in a n-gram count because it doesn&#x27;t have word after him (<a href="">here</a>), so we add <mark class="highlight-teal"><strong>1</strong></mark><mark class="highlight-teal"> end tokens</mark> at the end (<code>&lt;/s&gt;</code>)</p><ul id="aceb340b-62d5-43a9-b212-e4adc58a6755" class="toggle"><li><details open=""><summary><mark class="highlight-yellow">exemples</mark></summary><p id="244b8b28-7a64-4284-9c6f-0f3036dd91e1" class="">Here &quot;drinks [word]&quot; has 1 occurence and &quot;drinks&quot; has 2 (because there&#x27;s nothing after the last &quot;drinks&quot;)</p><figure id="6005b144-0753-47ad-a606-1090ea092c70" class="image"><a href="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/Untitled%204.png"><img style="width:553px" src="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/Untitled%204.png"/></a></figure><p id="520e0548-d805-40fd-846b-08bbc886e077" class="">So we fix it like that</p><figure id="f1b0e478-1756-4e64-97a4-ff13231dd282" class="image"><a href="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/Untitled%205.png"><img style="width:645px" src="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/Untitled%205.png"/></a></figure></details></li></ul><hr id="2c2618e9-a7de-4933-bd8e-291ed55da417"/><h1 id="07ee9f86-cbc3-4dc3-8150-9db1ca942ab1" class="block-color-blue">Create a n-gram model</h1><h2 id="dab0da39-80c1-44cb-94bd-37f88d730fef" class="block-color-purple">1 - Count Matrix</h2><p id="a9d96474-962e-40f9-8561-4595cec9a94c" class=""><em>Count of each n-grams</em></p><p id="a79a5aeb-40a9-4f44-9767-4c6dee7b6ad8" class="">Rows → unique corpus <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mi>N</mi><mo>−</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">(N-1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1</span><span class="mclose">)</span></span></span></span></span><span>﻿</span></span>-grams</p><p id="970da363-c1ac-4e43-ac35-faa69f01ebae" class="">Columns → unique corpus words</p><figure id="87c40f03-dbbc-4e8b-942c-54606171cfe0" class="image"><a href="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/Untitled%206.png"><img style="width:573px" src="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/Untitled%206.png"/></a></figure><blockquote id="6d53974e-10c5-40c2-b2f7-ea4b2d3d9178" class="">Reminder:
+<style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>C</mi><mo stretchy="false">(</mo><msubsup><mi>w</mi><mrow><mi>n</mi><mo>−</mo><mi>N</mi><mo>+</mo><mn>1</mn></mrow><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msubsup><mo separator="true">,</mo><msub><mi>w</mi><mi>n</mi></msub><mo stretchy="false">)</mo></mrow><mrow><mi>C</mi><mo stretchy="false">(</mo><msubsup><mi>w</mi><mrow><mi>n</mi><mo>−</mo><mi>N</mi><mo>+</mo><mn>1</mn></mrow><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msubsup><mo stretchy="false">)</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">\frac{C(w_{n-N+1}^{n-1},w_n)}{C(w_{n-N+1}^{n-1})}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.88883em;vertical-align:-0.6944149999999999em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.194415em;"><span style="top:-2.5847550000000004em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.07153em;">C</span><span class="mopen mtight">(</span><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8646357142857142em;"><span style="top:-2.160707142857143em;margin-left:-0.02691em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">n</span><span class="mbin mtight">−</span><span class="mord mathdefault mtight" style="margin-right:0.10903em;">N</span><span class="mbin mtight">+</span><span class="mord mtight">1</span></span></span></span><span style="top:-2.9043214285714285em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">n</span><span class="mbin mtight">−</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.39881428571428573em;"><span></span></span></span></span></span></span><span class="mclose mtight">)</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.570495em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.07153em;">C</span><span class="mopen mtight">(</span><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8913142857142857em;"><span style="top:-2.1873857142857145em;margin-left:-0.02691em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">n</span><span class="mbin mtight">−</span><span class="mord mathdefault mtight" style="margin-right:0.10903em;">N</span><span class="mbin mtight">+</span><span class="mord mtight">1</span></span></span></span><span style="top:-2.931em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">n</span><span class="mbin mtight">−</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3721357142857143em;"><span></span></span></span></span></span></span><span class="mpunct mtight">,</span><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.16454285714285719em;"><span style="top:-2.357em;margin-left:-0.02691em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathdefault mtight">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.6944149999999999em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span><span>﻿</span></span></blockquote><ul id="60f5f789-0a6c-4e3e-8dec-2ad29123599b" class="bulleted-list"><li>Here each cell represent the nominator</li></ul><ul id="f02859c6-7f74-4df1-926c-3ccf7da23a39" class="bulleted-list"><li>And the row sum the denominator</li></ul><h2 id="fcd28da5-a91b-4270-adbe-a02edcd572a5" class="block-color-purple">2- Probability matrix</h2><p id="8c67f56a-e8c6-42d2-a60d-061ef4a5a596" class=""><em>Probability of each n-gram</em></p><p id="c9b0ad6f-0e3a-4f07-94e8-3a99bc72fd4f" class="">Divide each cell by the sum of it&#x27;s row</p><figure id="7e61c588-841d-4947-82e4-4bba675cc618" class="image"><a href="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/Untitled%207.png"><img style="width:706px" src="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/Untitled%207.png"/></a><figcaption>Transition from Count to Probability Matrix</figcaption></figure><h2 id="a96f2143-20f7-475d-bcc6-97e6223cac51" class="block-color-purple">3 - Language Model</h2><h3 id="d4a527b8-8765-4328-95b1-721c62aec204" class="">Estimate probability of a sequence</h3><p id="264dd1f7-db87-411a-9a5b-f790c22f53b3" class="">Split a sentence in a list of n-gram and use the <mark class="highlight-teal">Probability matrix</mark> to estimate the probability of this sentence</p><h3 id="39f3f8fc-065d-4a74-8adf-06b9a62ad725" class="">Predict next element</h3><p id="7d18c036-be67-4146-9d31-58454aeee885" class="">Take the last <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">N-1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.76666em;vertical-align:-0.08333em;"></span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1</span></span></span></span></span><span>﻿</span></span> words from the sequence, look in the rows of this <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mi>N</mi><mo>−</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">(N-1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1</span><span class="mclose">)</span></span></span></span></span><span>﻿</span></span>-gram and choose the column (word) with the largest probability</p><h3 id="4e5a2fe9-9c64-49a7-95c7-e60e20aad76e" class="">Generative Language Model</h3><ol id="9ed47fc0-c28c-4054-84a9-252f7abf24f5" class="numbered-list" start="1"><li>Choose randomly a n-gram starting with a start token (<code>&lt;s&gt;</code>)</li></ol><ol id="de6d48ae-b987-4889-a0b7-65b7609c2dbe" class="numbered-list" start="2"><li>Choose randomly next n-gram starting with the previous word</li></ol><ol id="d15b98f4-bd92-4044-8b11-694edcf904cf" class="numbered-list" start="3"><li>Continue until a n-gram ending with end token (<code>&lt;/s&gt;</code>) is picked</li></ol><h3 id="fd071e59-0f96-4dea-99aa-e2697ac0a207" class=""><mark class="highlight-orange">Implementation notes</mark></h3><p id="56f54841-6dbe-4ef0-9067-849ea4d3654b" class="">All probability are between 0 and 1, multiplying them brings risk of <mark class="highlight-teal">underflow</mark>.</p><p id="6324899d-0bc8-4d37-9ac3-4b678aec836a" class="">We can use this log properties to avoid that:</p><figure id="7d959625-af26-4b7c-bab2-934315af190c" class="image"><a href="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/Untitled%208.png"><img style="width:321px" src="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/Untitled%208.png"/></a></figure><hr id="d44fcdca-3d14-46a0-aaa0-4377336b97f7"/><h1 id="08cf02db-246e-4db0-9ea9-3965f2bfd25f" class="block-color-blue">Model evaluation</h1><h2 id="59d8fe55-b6c0-43c9-8ad9-24aeb2278954" class="block-color-purple">Split data</h2><figure id="af42e765-5142-4c0f-a5a1-a97d52f254ac" class="image"><a href="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/Untitled%209.png"><img style="width:631px" src="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/Untitled%209.png"/></a></figure><p id="6c2caa56-bd06-4133-a2c8-f03b8b31f243" class="">You can split with different techniques</p><figure id="c56187fc-b3b0-4119-b505-521935340f82" class="image"><a href="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/Untitled%2010.png"><img style="width:654px" src="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/Untitled%2010.png"/></a></figure><h2 id="50361dee-642d-4bba-949f-af7ba049492d" class="block-color-purple">Perplexity</h2><p id="16cdaea2-482f-402f-a7a9-04293c90e0ac" class="">it&#x27;s a metrics in language modelling. It tells us how <mark class="highlight-teal">complex</mark> is the text.</p><ul id="a87a8b9c-ea46-4990-8d9d-367ecec72bcd" class="bulleted-list"><li>↘️   A texte written by a human will have a <mark class="highlight-teal">lower</mark> perplexity</li></ul><ul id="efb5a6a1-c3dc-4a80-97fc-fe3132f0d6ff" class="bulleted-list"><li>↗️  A text written by a computer choosing random word will have a <mark class="highlight-teal">higher</mark> perplexity</li></ul><figure id="a34aac97-a2f4-4bcb-b2f3-b5e4a0adf56e" class="image"><a href="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/Untitled%2011.png"><img style="width:680px" src="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/Untitled%2011.png"/></a></figure><p id="e2d23fab-1a28-4da3-b689-41dbd985c65a" class="">Good language are between 20 and 60</p><ul id="7fc76a1d-48e3-4238-8270-8b446e504e70" class="toggle"><li><details open=""><summary><mark class="highlight-yellow"><em>exemple</em></mark></summary><p id="73ed8b32-a742-4c7e-8001-dd8052530cab" class="">Exemples for bigram</p><figure id="46a072d8-1403-4c4c-992e-88d6552e2e9e" class="image"><a href="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/Untitled%2012.png"><img style="width:817px" src="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/Untitled%2012.png"/></a></figure></details></li></ul><figure class="block-color-yellow_background callout" style="white-space:pre-wrap;display:flex" id="8abf6f36-f5b1-453f-b90a-be72e2309ce0"><div style="font-size:1.5em"><span class="icon">⚠️</span></div><div style="width:100%">Perplexity can only be compared for language model that have the same vocabulary</div></figure><h1 id="5a1b4e5f-4c47-4f6d-ab6e-26f1a4352dad" class="block-color-blue">Handle missing information</h1><h2 id="6d6e33c4-dcb9-4ee6-acc6-a3be8073df98" class="block-color-purple">Unknown word</h2><p id="6d67ef5d-4dec-4bb9-9c77-0719c3c72df1" class=""><mark class="highlight-gray"><em>Or &quot;Out of vocabulary&quot; (OOV)</em></mark></p><p id="8d2136cb-c273-4fb2-92f8-ae1840a9a2a7" class="">Add special tag (<code>&lt;UNK&gt;</code>) in corpus and input for unknown words</p><ol id="140867ac-f274-4f45-9b8b-048c3c17b72e" class="numbered-list" start="1"><li>Define word in vocabulary</li></ol><ol id="44b96ce6-d701-45f4-aebf-a4b176b45453" class="numbered-list" start="2"><li>Replace corpus word&#x27;s not in vocabulary by <code>&lt;UNK&gt;</code></li></ol><ol id="80ab6474-81c4-4a1a-ba75-3b1b8df1f4c7" class="numbered-list" start="3"><li>Get probability of <code>&lt;UNK&gt;</code> like any other word</li></ol><figure id="400daa16-c9d6-47bc-ac2c-cd0481b28d01" class="image"><a href="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/0535E48A-0F09-475D-938E-A8F9B30F0D1C.jpeg"><img style="width:1852px" src="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/0535E48A-0F09-475D-938E-A8F9B30F0D1C.jpeg"/></a><figcaption>Word that appears less than 2 times are not in vocabulary</figcaption></figure><h3 id="ebedf705-986d-4bc0-af9f-360a48ac8cdf" class=""><em>Create a vocabulary</em></h3><ul id="9ddda8d7-7d3d-4da3-b44a-cc280f08d4cb" class="bulleted-list"><li>Get word that appear at least f time</li></ul><ul id="9fe5951d-990e-4b92-9604-8ec88bc1f0d8" class="bulleted-list"><li>Decide a voc size N and get the N more frequent words</li></ul><h2 id="e530a08e-0747-43d8-a456-e3a99e08e22e" class="block-color-purple">Smoothing</h2><p id="f7227590-3d7d-4da9-a4cc-f2406f3742d2" class="">It help to deal with n-gram not present in the corpus (all the word composing the n-gram are in the corpus, but not this specific word association)</p><figure id="e57b2766-918f-418e-8fbe-b57d024e07b0" class="image"><a href="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/BE8389CF-4245-4D41-905F-C38FEBB4242F.jpeg"><img style="width:1877px" src="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/BE8389CF-4245-4D41-905F-C38FEBB4242F.jpeg"/></a></figure><ul id="7fda94b7-e73b-410d-b73e-ff2039a65b39" class="bulleted-list"><li>add-one smoothing <mark class="highlight-gray">(</mark><mark class="highlight-gray"><em>laplacian smoothing</em></mark><mark class="highlight-gray">)</mark> → For smaller corpus</li></ul><ul id="8a690643-2764-4975-87f8-63f71b379857" class="bulleted-list"><li>add-k smoothing → For larger corpus</li></ul><h2 id="86844143-6365-4c1e-a459-2599ba6b6fad" class="block-color-purple">Backoff</h2><p id="b37d28eb-a808-4353-9783-b7f4ad5e4d7a" class="">if a <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi></mrow><annotation encoding="application/x-tex">N</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span></span></span></span></span><span>﻿</span></span>-gram is missing, use a <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mi>N</mi><mo>−</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">(N-1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1</span><span class="mclose">)</span></span></span></span></span><span>﻿</span></span>-gram. If it&#x27;s also missing, decrease the gram size until you have a non zero probability.</p><p id="d37d063c-eeb0-4f33-91d8-bc6d73b8c286" class="">Using lower n-gram probability distort things, so:</p><ul id="24d924ff-450c-4be9-b848-a7f2f02a3918" class="bulleted-list"><li>Katz backoff → &quot;discount&quot; lower n-gram probability</li></ul><ul id="1ba03e63-9cd7-4f22-998a-85d8ebec0ad1" class="bulleted-list"><li>Stupid backoff → multiply lower n-gram probability by a constant (<code>0.4</code>)</li></ul><h2 id="8ab1828a-e19b-498a-8e2b-3e3654d2e24b" class="block-color-purple">Interpolation</h2><p id="f2bea63e-4bed-44ff-973c-9073fe1a2900" class="">Use lower n-gram probability, multiplied by a delta.</p><p id="83d524d0-3df1-44a1-9fdd-7488f13e3b56" class="">All the delta must add up to one</p><figure id="2e196b2a-c590-416e-85e8-ac6444cad001" class="image"><a href="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/C273AEE9-16D6-45E5-A0D1-768AA63E09B4.jpeg"><img style="width:1747px" src="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/C273AEE9-16D6-45E5-A0D1-768AA63E09B4.jpeg"/></a></figure><p id="2151e7b1-cb3b-4e9d-832e-44da7792e689" class=""><mark class="highlight-yellow"><em>exemple:</em></mark><mark class="highlight-gray"><em> here 0.7, 0.2 and 0.1 were chosen has lambdas</em></mark></p><figure id="de3fbc7e-8c28-4c26-8f77-b102edf7517c" class="image"><a href="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/A450F9A2-77DD-4B80-84C3-572FB018BA5F.jpeg"><img style="width:1729px" src="N-gram%20language%20model%207b2eaa85c21745fbbb7708f85fc8c323/A450F9A2-77DD-4B80-84C3-572FB018BA5F.jpeg"/></a></figure></div></article></body></html>

@@ -1,0 +1,630 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Vector Space Models </title><style>
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	text-indent: -1.7em;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, YuMincho, "Yu Mincho", "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Songti TC", "Songti SC", "SimSun", "Nanum Myeongjo", NanumMyeongjo, Batang, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC', 'Noto Sans CJK KR'; }
+
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC', 'Noto Sans Mono CJK KR'; }
+
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, YuMincho, "Yu Mincho", "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Songti TC", "Songti SC", "SimSun", "Nanum Myeongjo", NanumMyeongjo, Batang, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC', 'Noto Sans CJK KR'; }
+
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC', 'Noto Sans Mono CJK KR'; }
+
+.highlight-default {
+}
+.highlight-gray {
+	color: rgb(155,154,151);
+}
+.highlight-brown {
+	color: rgb(100,71,58);
+}
+.highlight-orange {
+	color: rgb(217,115,13);
+}
+.highlight-yellow {
+	color: rgb(223,171,1);
+}
+.highlight-teal {
+	color: rgb(15,123,108);
+}
+.highlight-blue {
+	color: rgb(11,110,153);
+}
+.highlight-purple {
+	color: rgb(105,64,165);
+}
+.highlight-pink {
+	color: rgb(173,26,114);
+}
+.highlight-red {
+	color: rgb(224,62,62);
+}
+.highlight-gray_background {
+	background: rgb(235,236,237);
+}
+.highlight-brown_background {
+	background: rgb(233,229,227);
+}
+.highlight-orange_background {
+	background: rgb(250,235,221);
+}
+.highlight-yellow_background {
+	background: rgb(251,243,219);
+}
+.highlight-teal_background {
+	background: rgb(221,237,234);
+}
+.highlight-blue_background {
+	background: rgb(221,235,241);
+}
+.highlight-purple_background {
+	background: rgb(234,228,242);
+}
+.highlight-pink_background {
+	background: rgb(244,223,235);
+}
+.highlight-red_background {
+	background: rgb(251,228,228);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(55, 53, 47, 0.6);
+	fill: rgba(55, 53, 47, 0.6);
+}
+.block-color-brown {
+	color: rgb(100,71,58);
+	fill: rgb(100,71,58);
+}
+.block-color-orange {
+	color: rgb(217,115,13);
+	fill: rgb(217,115,13);
+}
+.block-color-yellow {
+	color: rgb(223,171,1);
+	fill: rgb(223,171,1);
+}
+.block-color-teal {
+	color: rgb(15,123,108);
+	fill: rgb(15,123,108);
+}
+.block-color-blue {
+	color: rgb(11,110,153);
+	fill: rgb(11,110,153);
+}
+.block-color-purple {
+	color: rgb(105,64,165);
+	fill: rgb(105,64,165);
+}
+.block-color-pink {
+	color: rgb(173,26,114);
+	fill: rgb(173,26,114);
+}
+.block-color-red {
+	color: rgb(224,62,62);
+	fill: rgb(224,62,62);
+}
+.block-color-gray_background {
+	background: rgb(235,236,237);
+}
+.block-color-brown_background {
+	background: rgb(233,229,227);
+}
+.block-color-orange_background {
+	background: rgb(250,235,221);
+}
+.block-color-yellow_background {
+	background: rgb(251,243,219);
+}
+.block-color-teal_background {
+	background: rgb(221,237,234);
+}
+.block-color-blue_background {
+	background: rgb(221,235,241);
+}
+.block-color-purple_background {
+	background: rgb(234,228,242);
+}
+.block-color-pink_background {
+	background: rgb(244,223,235);
+}
+.block-color-red_background {
+	background: rgb(251,228,228);
+}
+.select-value-color-default { background-color: rgba(206,205,202,0.5); }
+.select-value-color-gray { background-color: rgba(155,154,151, 0.4); }
+.select-value-color-brown { background-color: rgba(140,46,0,0.2); }
+.select-value-color-orange { background-color: rgba(245,93,0,0.2); }
+.select-value-color-yellow { background-color: rgba(233,168,0,0.2); }
+.select-value-color-green { background-color: rgba(0,135,107,0.2); }
+.select-value-color-blue { background-color: rgba(0,120,223,0.2); }
+.select-value-color-purple { background-color: rgba(103,36,222,0.2); }
+.select-value-color-pink { background-color: rgba(221,0,129,0.2); }
+.select-value-color-red { background-color: rgba(255,0,26,0.2); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="266dd30a-ba68-4421-8b4e-d1da0d8edb93" class="page sans"><header><div class="page-header-icon undefined"><span class="icon">↗️</span></div><h1 class="page-title">Vector Space Models </h1></header><div class="page-body"><figure id="7c03cc38-a769-4cff-8598-cc4807a828ce"><a href="https://www.coursera.org/learn/classification-vector-spaces-in-nlp/home/week/3" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Coursera | Online Courses &amp; Credentials From Top Educators. Join for Free | Coursera</div><div class="bookmark-description">Learn online and earn valuable credentials from top universities like Yale, Michigan, Stanford, and leading companies like Google and IBM. Join Coursera for free and transform your career with degrees, certificates, Specializations, &amp; MOOCs in data science, computer science, business, and dozens of other topics.</div></div><div class="bookmark-href"><img src="https://d3njjcbhbojbot.cloudfront.net/web/images/favicons/icon-blue-32x32.png" class="icon bookmark-icon"/>https://www.coursera.org/learn/classification-vector-spaces-in-nlp/home/week/3</div></div><img src="https://s3.amazonaws.com/coursera/media/Partner_Logos.png" class="bookmark-image"/></a></figure><p id="8c76f794-099e-4a94-9a05-31b9023eb93d" class=""><em>Allow to represent word, document... with a vector and see wich one have similar meaning</em></p><h1 id="af3e5ff8-4fd1-400c-ae29-14e8edd6c684" class="block-color-blue">Co-occurence matrix </h1><p id="6ddd034b-ecd9-48cd-aa43-27498aad7d32" class="">To make a VSM, we first create a co-occurence matrix</p><p id="d9bb7b10-b0c6-4b35-bfda-2efa525cafd1" class=""><mark class="highlight-teal">Word by word</mark>: <em>count the number of time a word is within a k distence</em></p><figure id="ca0bb68c-1f99-45e2-89ae-828d47a59e44" class="image"><a href="Vector%20Space%20Models%20266dd30aba6844218b4ed1da0d8edb93/299F8BDE-F9A3-477E-9AFA-1F005EC5DA8B.jpeg"><img style="width:1916px" src="Vector%20Space%20Models%20266dd30aba6844218b4ed1da0d8edb93/299F8BDE-F9A3-477E-9AFA-1F005EC5DA8B.jpeg"/></a></figure><p id="55b6461a-0071-4b7c-9621-b43917297311" class=""><mark class="highlight-teal">Word by document</mark>: <em>count the number of time a word is within a certain category</em></p><figure id="0ab2db59-7d58-447e-bfeb-a0c5b910befb" class="image"><a href="Vector%20Space%20Models%20266dd30aba6844218b4ed1da0d8edb93/5EC1E238-55A5-4E68-849E-8E9A1B4B3A89.jpeg"><img style="width:1864px" src="Vector%20Space%20Models%20266dd30aba6844218b4ed1da0d8edb93/5EC1E238-55A5-4E68-849E-8E9A1B4B3A89.jpeg"/></a></figure><h1 id="07df1d69-1a42-4d40-8731-fd1b0fbd84cb" class=""><mark class="highlight-blue">Vector Space</mark></h1><p id="17f12ff2-5fb5-429d-afd9-7438bc8a394e" class="">We can then turn column into vector</p><p id="8436bb17-55ca-4d76-9603-b73143d13fed" class="">It&#x27;s also called <mark class="highlight-red_background">Word Embedding</mark></p><figure id="30a6ed0f-e8b6-42ae-b8fb-52efc1c6cb75" class="image"><a href="Vector%20Space%20Models%20266dd30aba6844218b4ed1da0d8edb93/Untitled.png"><img style="width:1381px" src="Vector%20Space%20Models%20266dd30aba6844218b4ed1da0d8edb93/Untitled.png"/></a></figure><p id="d24ddeda-c964-4adc-a37b-81ffb777a42b" class="">
+</p><h1 id="5db5e9b8-464d-4778-a289-3bb62a32df64" class=""><mark class="highlight-blue">Euclidean Distance</mark></h1><p id="c340ba47-5b81-41de-9222-5a63f679feea" class=""><mark class="highlight-teal">Distance</mark> between two vectors of n dimension</p><figure id="cfb2968f-f8fa-457c-b93f-20d340b79286" class="image"><a href="Vector%20Space%20Models%20266dd30aba6844218b4ed1da0d8edb93/Untitled%201.png"><img style="width:384px" src="Vector%20Space%20Models%20266dd30aba6844218b4ed1da0d8edb93/Untitled%201.png"/></a></figure><p id="2f8c4929-e874-4a27-bde6-674414ff87e0" class="">You can also get it by computing the  <mark class="highlight-teal">norm</mark> of the difference of this 2 vectors</p><pre id="0f0840ef-3035-4b05-80d5-30f49e4a0161" class="code"><code># In Python, with numpy :
+np.linalg.norm(a - b)</code></pre><h1 id="421f7922-a176-4a17-b4ad-7791725f3a60" class=""><mark class="highlight-blue">Cosine Similarity</mark></h1><p id="c686512f-299e-4af6-9502-72271d639c84" class="">We can also use the cosine angle, that&#x27;s better than the euclidian distance because it&#x27;s not biases by the size of the dataset.</p><p id="ee7ce8e3-1465-4292-9cd8-945d2f0a4aff" class=""><mark class="highlight-yellow">exemple</mark>: Here the &quot;Food corpus&quot; had less text than the other, so he is far. But with angle comparison, he&#x27;s not so far</p><figure id="488d89b5-e46a-405a-8065-ff5524477e20" class="image"><a href="Vector%20Space%20Models%20266dd30aba6844218b4ed1da0d8edb93/Untitled%202.png"><img style="width:1348px" src="Vector%20Space%20Models%20266dd30aba6844218b4ed1da0d8edb93/Untitled%202.png"/></a></figure><p id="6ec8b835-feae-4ebb-a505-eb7965dececc" class="">The cosine formula:</p><figure id="215f0ccc-f233-4a50-9ee6-a921dd13ccbf" class="image"><a href="Vector%20Space%20Models%20266dd30aba6844218b4ed1da0d8edb93/Untitled%203.png"><img style="width:240px" src="Vector%20Space%20Models%20266dd30aba6844218b4ed1da0d8edb93/Untitled%203.png"/></a></figure><ul id="d496b200-fc30-4c7d-9462-1ff5040529dd" class="toggle"><li><details open=""><summary>Quick Math recap ! (<mark class="highlight-orange">Vector norme</mark> and <mark class="highlight-orange"><em>Dot product</em></mark><em>)</em></summary><figure id="06871387-ea3e-47c4-bde8-e9b6adad0217" class="image"><a href="Vector%20Space%20Models%20266dd30aba6844218b4ed1da0d8edb93/Untitled%204.png"><img style="width:384px" src="Vector%20Space%20Models%20266dd30aba6844218b4ed1da0d8edb93/Untitled%204.png"/></a></figure></details></li></ul><p id="72b40349-3c89-4bdd-9b2b-30c91f83fcf1" class="">When two vector are far away (90 angle) → the cosine is ~0</p><p id="f0d542ea-fb18-4b0e-86bf-3f65ffc08102" class="">When two vector are next to each other (0 angle) → the cosine is ~1</p><ul id="d738c162-6181-4e20-a11c-e2a542600bd9" class="toggle"><li><details open=""><summary>Visual</summary><figure id="2296c977-1009-461d-82dc-746059f40c43" class="image"><a href="Vector%20Space%20Models%20266dd30aba6844218b4ed1da0d8edb93/Untitled%205.png"><img style="width:662px" src="Vector%20Space%20Models%20266dd30aba6844218b4ed1da0d8edb93/Untitled%205.png"/></a></figure></details></li></ul><p id="594d6e41-45d7-425f-9c1a-e311bd9a56a5" class="">
+</p><h1 id="bfa885ff-8462-477f-bb97-ef8e485ab5bf" class=""><mark class="highlight-blue">Making prediciton</mark></h1><p id="da227221-af4e-49fb-bc89-81e6763a7061" class="">By subtracting the <mark class="highlight-teal">USA</mark> and the <mark class="highlight-blue">Washignton</mark> vectors we can have a vector (in purple) that represent the idea of &quot;<mark class="highlight-purple">Capital</mark>&quot;.</p><p id="e30754e1-4ac1-43da-bc7a-ed86ce4467d0" class="">By adding our <mark class="highlight-purple">Capital </mark>vector with <mark class="highlight-teal">Russia</mark>, we found a an <mark class="highlight-orange">estimation</mark> of the position it&#x27;s capital. The closest point to our <mark class="highlight-orange">estimation</mark> is indeed <mark class="highlight-blue">Moscow</mark></p><figure id="e99504bc-0a2d-43b6-8f38-8c7b3f12aa0a" class="image"><a href="Vector%20Space%20Models%20266dd30aba6844218b4ed1da0d8edb93/Untitled%206.png"><img style="width:1392px" src="Vector%20Space%20Models%20266dd30aba6844218b4ed1da0d8edb93/Untitled%206.png"/></a></figure><p id="8eabbb50-de64-4bf1-8a2e-e2a79bdde556" class="">(It does not alway work, but it&#x27;s quite cool)</p></div></article></body></html>

@@ -1,0 +1,633 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Word embedding with NN</title><style>
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	text-indent: -1.7em;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, YuMincho, "Yu Mincho", "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Songti TC", "Songti SC", "SimSun", "Nanum Myeongjo", NanumMyeongjo, Batang, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC', 'Noto Sans CJK KR'; }
+
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC', 'Noto Sans Mono CJK KR'; }
+
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, YuMincho, "Yu Mincho", "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Songti TC", "Songti SC", "SimSun", "Nanum Myeongjo", NanumMyeongjo, Batang, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC', 'Noto Sans CJK KR'; }
+
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC', 'Noto Sans Mono CJK KR'; }
+
+.highlight-default {
+}
+.highlight-gray {
+	color: rgb(155,154,151);
+}
+.highlight-brown {
+	color: rgb(100,71,58);
+}
+.highlight-orange {
+	color: rgb(217,115,13);
+}
+.highlight-yellow {
+	color: rgb(223,171,1);
+}
+.highlight-teal {
+	color: rgb(15,123,108);
+}
+.highlight-blue {
+	color: rgb(11,110,153);
+}
+.highlight-purple {
+	color: rgb(105,64,165);
+}
+.highlight-pink {
+	color: rgb(173,26,114);
+}
+.highlight-red {
+	color: rgb(224,62,62);
+}
+.highlight-gray_background {
+	background: rgb(235,236,237);
+}
+.highlight-brown_background {
+	background: rgb(233,229,227);
+}
+.highlight-orange_background {
+	background: rgb(250,235,221);
+}
+.highlight-yellow_background {
+	background: rgb(251,243,219);
+}
+.highlight-teal_background {
+	background: rgb(221,237,234);
+}
+.highlight-blue_background {
+	background: rgb(221,235,241);
+}
+.highlight-purple_background {
+	background: rgb(234,228,242);
+}
+.highlight-pink_background {
+	background: rgb(244,223,235);
+}
+.highlight-red_background {
+	background: rgb(251,228,228);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(55, 53, 47, 0.6);
+	fill: rgba(55, 53, 47, 0.6);
+}
+.block-color-brown {
+	color: rgb(100,71,58);
+	fill: rgb(100,71,58);
+}
+.block-color-orange {
+	color: rgb(217,115,13);
+	fill: rgb(217,115,13);
+}
+.block-color-yellow {
+	color: rgb(223,171,1);
+	fill: rgb(223,171,1);
+}
+.block-color-teal {
+	color: rgb(15,123,108);
+	fill: rgb(15,123,108);
+}
+.block-color-blue {
+	color: rgb(11,110,153);
+	fill: rgb(11,110,153);
+}
+.block-color-purple {
+	color: rgb(105,64,165);
+	fill: rgb(105,64,165);
+}
+.block-color-pink {
+	color: rgb(173,26,114);
+	fill: rgb(173,26,114);
+}
+.block-color-red {
+	color: rgb(224,62,62);
+	fill: rgb(224,62,62);
+}
+.block-color-gray_background {
+	background: rgb(235,236,237);
+}
+.block-color-brown_background {
+	background: rgb(233,229,227);
+}
+.block-color-orange_background {
+	background: rgb(250,235,221);
+}
+.block-color-yellow_background {
+	background: rgb(251,243,219);
+}
+.block-color-teal_background {
+	background: rgb(221,237,234);
+}
+.block-color-blue_background {
+	background: rgb(221,235,241);
+}
+.block-color-purple_background {
+	background: rgb(234,228,242);
+}
+.block-color-pink_background {
+	background: rgb(244,223,235);
+}
+.block-color-red_background {
+	background: rgb(251,228,228);
+}
+.select-value-color-default { background-color: rgba(206,205,202,0.5); }
+.select-value-color-gray { background-color: rgba(155,154,151, 0.4); }
+.select-value-color-brown { background-color: rgba(140,46,0,0.2); }
+.select-value-color-orange { background-color: rgba(245,93,0,0.2); }
+.select-value-color-yellow { background-color: rgba(233,168,0,0.2); }
+.select-value-color-green { background-color: rgba(0,135,107,0.2); }
+.select-value-color-blue { background-color: rgba(0,120,223,0.2); }
+.select-value-color-purple { background-color: rgba(103,36,222,0.2); }
+.select-value-color-pink { background-color: rgba(221,0,129,0.2); }
+.select-value-color-red { background-color: rgba(255,0,26,0.2); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="72c9de5a-6981-49a5-8999-5eac2d5c8f32" class="page sans"><header><div class="page-header-icon undefined"><span class="icon">📚</span></div><h1 class="page-title">Word embedding with NN</h1></header><div class="page-body"><p id="1ff56ee9-549b-4a58-a28f-ce6c3ec44007" class="block-color-gray"><em>Word vectors or word embedding</em></p><figure id="5adb2489-6e86-4935-85f1-e2d3586755d8"><a href="https://www.coursera.org/learn/probabilistic-models-in-nlp/home/week/4" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Coursera | Online Courses &amp; Credentials From Top Educators. Join for Free | Coursera</div><div class="bookmark-description">Learn online and earn valuable credentials from top universities like Yale, Michigan, Stanford, and leading companies like Google and IBM. Join Coursera for free and transform your career with degrees, certificates, Specializations, &amp; MOOCs in data science, computer science, business, and dozens of other topics.</div></div><div class="bookmark-href"><img src="https://d3njjcbhbojbot.cloudfront.net/web/images/favicons/icon-blue-32x32.png" class="icon bookmark-icon"/>https://www.coursera.org/learn/probabilistic-models-in-nlp/home/week/4</div></div><img src="https://s3.amazonaws.com/coursera/media/Partner_Logos.png" class="bookmark-image"/></a></figure><p id="73364ca7-3f92-44bf-956b-d322c94f6363" class="">We want to represent word with vectors. We could do it like that, for <mark class="highlight-yellow">exemple</mark>:</p><figure id="995f1b47-e680-416f-a4a1-839518862491" class="image"><a href="Word%20embedding%20with%20NN%2072c9de5a698149a589995eac2d5c8f32/Untitled.png"><img style="width:576px" src="Word%20embedding%20with%20NN%2072c9de5a698149a589995eac2d5c8f32/Untitled.png"/></a></figure><p id="714bf26f-b8ad-4b28-8bd6-d32ad926813c" class="">But it carry <mark class="highlight-red">no meaning</mark> and it create really <mark class="highlight-red">huge</mark> and <mark class="highlight-red">sparse</mark> vectors.</p><h1 id="590f82b3-a87a-4532-a50a-08ce4f5a924c" class="block-color-blue">Word embeddings</h1><p id="46424c0f-63e8-490f-8a3d-1807d1449966" class="">A way to represent word with vectors that carry <mark class="highlight-teal">meaning</mark></p><figure id="f76bd0a1-8253-439f-95ab-b781f46d4446" class="image"><a href="Word%20embedding%20with%20NN%2072c9de5a698149a589995eac2d5c8f32/Untitled%201.png"><img style="width:576px" src="Word%20embedding%20with%20NN%2072c9de5a698149a589995eac2d5c8f32/Untitled%201.png"/></a><figcaption>Exemples of simple vectors with a bit of meaning</figcaption></figure><p id="b94db6ce-5a05-40fc-81a9-6c686ae2b9f0" class="">Advantages:</p><ul id="b55ef38a-f57d-42d8-8cd5-827451237a56" class="bulleted-list"><li>Low dimension (100 - 1000 rows)</li></ul><ul id="23546c28-45cc-4951-a77a-60da17ab0993" class="bulleted-list"><li>Has meaning (semantic distance, analogies...)</li></ul><h2 id="4259b8c3-15a3-4afc-bc2c-5696a6a4fb1b" class="block-color-purple">Create word embeddings</h2><p id="9ff69a36-b1eb-4fda-a5c8-e5f7f561bfcf" class="">We need:</p><ul id="bf629553-548d-40d6-b7c6-6108b3b0f086" class="bulleted-list"><li>A <mark class="highlight-teal">corpus</mark> of text → word in <mark class="highlight-teal">context</mark> (wikipedia, book, news paper... Not just word from a book)</li></ul><ul id="2ba79d9d-ebc1-4e09-a18b-347f7b8159d8" class="bulleted-list"><li><mark class="highlight-teal">Embedding method</mark> → There are many methods. Here we will see methods with ML that <em>learns</em> words</li></ul><p id="1106e36c-f103-4c07-baed-886840a4f8ec" class="">We need to transform word in number and feed them to our ML model.</p><p id="fae654b3-718f-456c-830c-c0c02d7abab4" class="">Then you need a <mark class="highlight-teal">learning task</mark> (like predicting missing words in a sentence)</p><p id="60dbaf10-0528-406e-976a-f4f0e6f01926" class="">This type of ML is <em>self supervised</em> (there&#x27;s no label (unsupervised), but the context of the text acts like a label, so it&#x27;s a bit supervised. It&#x27;s a mix)</p><figure id="9b7c1448-6dc9-4cbe-864c-b158f44b0069" class="image"><a href="Word%20embedding%20with%20NN%2072c9de5a698149a589995eac2d5c8f32/Untitled%202.png"><img style="width:576px" src="Word%20embedding%20with%20NN%2072c9de5a698149a589995eac2d5c8f32/Untitled%202.png"/></a></figure><h2 id="7f047631-e3cb-4dfc-8310-c3a9d1a27334" class="block-color-purple">Word embeddings methods</h2><h3 id="442f0fa6-0ebd-465d-9703-cbe55eebe95b" class="">Basic Method</h3><ul id="79dc20fb-1788-4485-ba29-0dd3eb767114" class="bulleted-list"><li>word2vec <mark class="highlight-gray">(Google)</mark><p id="130416d9-303f-4b53-a333-f1810af63ab7" class="">→ Continuous bag-of-word (CBOW)</p><p id="0ed2cee9-2e3e-4321-ad84-13e1c2177306" class="">→ Continuous skip-gram (SGNS)</p></li></ul><ul id="4e28ceec-b774-4b20-8d5c-aba311fe9f30" class="bulleted-list"><li>Global Vectors (GloVe) <mark class="highlight-gray">(Stanford)</mark></li></ul><ul id="d298a926-8c56-4a63-9031-05e53f69d78e" class="bulleted-list"><li>fastText <mark class="highlight-gray">(Facebook)</mark><p id="f9dfe9e4-dc6a-4879-b245-b14bad2f8f68" class=""><em>Supports out-of-vocabulary (OOV)</em></p></li></ul><h3 id="0c747033-1cdd-43f2-82f1-daa5a1178377" class="">Advanced methods</h3><p id="3a481296-a4dc-49b2-9943-bc950ce35757" class=""><em>This methods create different vector representation for the same word in different context</em></p><ul id="7d34de5c-d1c2-466a-81e7-b52a44982a00" class="bulleted-list"><li>BERT <mark class="highlight-gray">(Google)</mark></li></ul><ul id="0693a86a-ff04-4a66-be0e-deb8dbb049f5" class="bulleted-list"><li>ELMo <mark class="highlight-gray">(Allen Institute for Ai)</mark></li></ul><ul id="4e30f8fa-a8f2-47ba-8269-f5251bedd5c1" class="bulleted-list"><li>GPT-2 <mark class="highlight-gray">(OpenAI)</mark></li></ul><h1 id="b3c001d3-3ef5-489a-bf55-00143176f3d2" class="block-color-blue">Continuous Bag-of-Words Model</h1><p id="78bc987c-d174-4c91-9c86-cee3cc7c7213" class="block-color-gray"><em>Or CBOW model</em></p><p id="7b8929bb-f39e-4df6-95c9-4ff2e88083d3" class="">The learning task will be to predict missing word in a sequence</p><ul id="3b5da89a-a275-4a06-b457-7711abf28fca" class="toggle"><li><details open=""><summary><mark class="highlight-yellow">exemples</mark></summary><figure id="be681e50-d3f2-40f9-8c6e-2be978b72130" class="image"><a href="Word%20embedding%20with%20NN%2072c9de5a698149a589995eac2d5c8f32/Untitled%203.png"><img style="width:440px" src="Word%20embedding%20with%20NN%2072c9de5a698149a589995eac2d5c8f32/Untitled%203.png"/></a></figure><p id="4819af71-c051-4501-b94c-c7de56623632" class="">Learn all the good word with this context</p></details></li></ul><p id="d67447da-8c3b-44a2-bbb2-c23e93b78c98" class="">
+</p><ul id="3de909d4-0c27-48cc-94d8-986619079402" class="bulleted-list"><li><mark class="highlight-teal">Center word</mark> → word to predict</li></ul><ul id="f1539399-6143-4d85-97bf-e40c87d7502b" class="bulleted-list"><li><mark class="highlight-teal">Context words</mark> → <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi></mrow><annotation encoding="application/x-tex">C</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.07153em;">C</span></span></span></span></span><span>﻿</span></span> word before and after the center word<ul id="2ba92928-b8f9-4b49-a263-2137ca44d59a" class="bulleted-list"><li><mark class="highlight-teal"><style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi></mrow><annotation encoding="application/x-tex">C</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.07153em;">C</span></span></span></span></span><span>﻿</span></span></mark> → context half-size</li></ul></li></ul><ul id="3a5e64bb-0449-4a3f-bd76-035b5f51f737" class="bulleted-list"><li><mark class="highlight-teal">Window</mark> → context words + center word (<style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>C</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">2C + 1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.76666em;vertical-align:-0.08333em;"></span><span class="mord">2</span><span class="mord mathdefault" style="margin-right:0.07153em;">C</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1</span></span></span></span></span><span>﻿</span></span>)</li></ul><figure id="ff8b311f-02dd-4659-8769-a4e94f116132" class="image"><a href="Word%20embedding%20with%20NN%2072c9de5a698149a589995eac2d5c8f32/Untitled%204.png"><img style="width:576px" src="Word%20embedding%20with%20NN%2072c9de5a698149a589995eac2d5c8f32/Untitled%204.png"/></a></figure><div id="0619fc3a-4ec5-4fd0-9896-bc9e367607b5" class="column-list"><div id="169dda43-c865-46ce-8c04-b5ac5331cb85" style="width:62.5%" class="column"><figure id="ff892cc4-3dd3-4ae4-b652-b2545eca1ae9" class="image"><a href="Word%20embedding%20with%20NN%2072c9de5a698149a589995eac2d5c8f32/Untitled%205.png"><img style="width:830px" src="Word%20embedding%20with%20NN%2072c9de5a698149a589995eac2d5c8f32/Untitled%205.png"/></a><figcaption>Data preparation for CBOW</figcaption></figure></div><div id="0752bf98-097c-4c26-af3a-46c89b1abf6c" style="width:37.50000000000001%" class="column"><figure id="c4cad61c-bb54-4b30-b4c0-9ee028f306cd" class="image"><a href="Word%20embedding%20with%20NN%2072c9de5a698149a589995eac2d5c8f32/Untitled%206.png"><img style="width:317px" src="Word%20embedding%20with%20NN%2072c9de5a698149a589995eac2d5c8f32/Untitled%206.png"/></a><figcaption>Neural network for CBOW</figcaption></figure></div></div><h1 id="50061cb1-3fb6-466e-b994-a6ae9b51c8f9" class="block-color-blue">Prepare Data</h1><h2 id="3e493807-df56-4f08-8a0a-c5e75046adbe" class="block-color-purple">Cleaning</h2><ol id="7d487736-44d4-4055-9fc2-fe56fe71f469" class="numbered-list" start="1"><li>Case → all to lowercase (or upper case)</li></ol><ol id="0aa9f0e1-32a7-4d84-a41c-b1780f24dc4b" class="numbered-list" start="2"><li>Punctuation → we can replace all stopping one with a token and ignore non stopping one</li></ol><ol id="ee4cab5d-1d37-499d-801e-c2fd6a808fc2" class="numbered-list" start="3"><li>Number→ in function of the case, we can:<ul id="a22b6b1b-5951-454e-b911-3ee2e9301c2c" class="bulleted-list"><li>remove them</li></ul><ul id="da053e1e-9c17-4933-90a4-e95270557597" class="bulleted-list"><li>keep them</li></ul><ul id="cf14a2b4-5e0e-469d-91b5-2d67ad89ce42" class="bulleted-list"><li>replace them with a <code>&lt;NUMBER&gt;</code> token</li></ul></li></ol><ol id="e495fae5-b171-491f-bdcb-ea11a7b00af1" class="numbered-list" start="4"><li>Special character <mark class="highlight-gray">(mathematical, €, $...)</mark> → in general, removed</li></ol><ol id="1e62d7ae-a5e5-4133-8693-d69e9d266ccb" class="numbered-list" start="5"><li>Special words <mark class="highlight-gray">(emoji, hashtag...)</mark> → replace by words or keeped (😉 → &quot;wink&quot;)</li></ol><figure id="315c6055-518f-45e8-a2f4-a1e7596773e3" class="image"><a href="Word%20embedding%20with%20NN%2072c9de5a698149a589995eac2d5c8f32/Untitled%207.png"><img style="width:790px" src="Word%20embedding%20with%20NN%2072c9de5a698149a589995eac2d5c8f32/Untitled%207.png"/></a></figure><p id="d1719d1a-c4ad-4d5a-850f-49b2e64d6968" class="">In <mark class="highlight-teal_background">python</mark>, you can use nltk with <code>punkt</code> to do this</p><figure id="da6da95e-54e2-47dc-b9e1-a357be3b068e" class="image"><a href="Word%20embedding%20with%20NN%2072c9de5a698149a589995eac2d5c8f32/Untitled%208.png"><img style="width:737px" src="Word%20embedding%20with%20NN%2072c9de5a698149a589995eac2d5c8f32/Untitled%208.png"/></a></figure><h2 id="c68478b0-3bfc-4679-be83-529f379795b2" class="block-color-purple">Sliding window</h2><pre id="a81f5f56-9b1c-4796-8cc4-672a099f9a63" class="code"><code>def get_windows(word, C):
+	for i in range(C, len(words) - C):
+		center_w = words[i]
+		context_w = words[i - C:i] + words[i + 1:i + 1 + C]
+		yield context_w, center_w</code></pre><h2 id="9902b050-cad4-4ce8-9607-e844db5bda9e" class="block-color-purple">Words to vector</h2><p id="cc2f57a6-15c4-4d6a-9bb9-9e8965e7876d" class=""><em>We need to convert words to number to use them with a NN</em></p><h3 id="6e2f2b62-2eda-452d-9c34-630a8f97777b" class="">Center word</h3><ol id="9cc4ed3c-9a6b-42cb-8be0-5b84d6e8b803" class="numbered-list" start="1"><li>Create Vocabulary</li></ol><ol id="7951bf74-f397-45bd-a1fb-a87010671984" class="numbered-list" start="2"><li>One hot vector<figure id="9de31b30-8882-4075-bfae-78a4a4677a02" class="image"><a href="Word%20embedding%20with%20NN%2072c9de5a698149a589995eac2d5c8f32/Untitled%209.png"><img style="width:747px" src="Word%20embedding%20with%20NN%2072c9de5a698149a589995eac2d5c8f32/Untitled%209.png"/></a></figure></li></ol><h3 id="48cc98fe-cd59-4e03-9c97-9218f573b06d" class="">Context words</h3><p id="33827a16-5947-470b-b53c-07452c3f9beb" class="">Average of one-hot vectors</p><figure id="b723b92e-2829-460a-908f-fd9fb311ed6f" class="image"><a href="Word%20embedding%20with%20NN%2072c9de5a698149a589995eac2d5c8f32/Untitled%2010.png"><img style="width:712px" src="Word%20embedding%20with%20NN%2072c9de5a698149a589995eac2d5c8f32/Untitled%2010.png"/></a></figure><h1 id="0d153e15-d0de-460d-9b6e-ff1eb053c353" class="block-color-blue">The Neural Network</h1><p id="ae938b9c-a6a6-42fa-bdb0-4fed9533adb9" class="">3 layer, (ReLU, Softmax), Cross-entropy loss...</p><figure id="5675910f-fa07-4d16-af0c-1026e9ce5e83" class="image"><a href="Word%20embedding%20with%20NN%2072c9de5a698149a589995eac2d5c8f32/Untitled%2011.png"><img style="width:794px" src="Word%20embedding%20with%20NN%2072c9de5a698149a589995eac2d5c8f32/Untitled%2011.png"/></a></figure><ul id="85f0bf44-875c-45ec-ac04-0a0547e2519f" class="bulleted-list"><li>V → Vocabulary size</li></ul><ul id="93fae772-dd0e-45b2-a7aa-6a78cd557264" class="bulleted-list"><li>N →Word embedding size (to chose)</li></ul><ul id="23e588f3-4937-46f9-968b-a38176f3cfd4" class="block-color-gray toggle"><li><details open=""><summary><em>dimensions</em></summary><p id="dc43c416-fc1a-464b-b8c5-0a2dd1008dcd" class="">with <mark class="highlight-teal">batch processing</mark> (multiple input stacked)</p><figure id="2d514914-3d9d-4ef6-8827-4e8bdf259bae" class="image"><a href="Word%20embedding%20with%20NN%2072c9de5a698149a589995eac2d5c8f32/Untitled%2012.png"><img style="width:821px" src="Word%20embedding%20with%20NN%2072c9de5a698149a589995eac2d5c8f32/Untitled%2012.png"/></a></figure></details></li></ul><p id="a47434af-305c-423a-8cae-cd7b462ea3fc" class="">Then <mark class="highlight-teal">gradient descent</mark> + <mark class="highlight-teal">back-propagation</mark> to learn...</p><ul id="8b03bf42-21f0-4384-b932-f24bae20ff21" class="block-color-gray toggle"><li><details open=""><summary>Back-propagation formula for CBOW</summary><figure id="b12a3cdf-48ae-4b00-b224-cc50b33b4122" class="image"><a href="Word%20embedding%20with%20NN%2072c9de5a698149a589995eac2d5c8f32/Untitled%2013.png"><img style="width:690px" src="Word%20embedding%20with%20NN%2072c9de5a698149a589995eac2d5c8f32/Untitled%2013.png"/></a></figure></details></li></ul><h1 id="99c21429-cb14-46ab-9ef8-61c1dc2af447" class="block-color-blue">Extracting Word embedding</h1><p id="4149b20c-59a0-453d-acc3-a81d9a6a1dae" class="block-color-gray"><em>Word embedding is a by product</em></p><p id="e59ac971-65a5-4f46-bdff-77a67c1c0ef2" class="">Ou neural netword does not predict word embeddings, it&#x27;s a <mark class="highlight-teal"><em>by product</em></mark> of the process. So we now need to extract our words embedding 👀</p><h3 id="88324cf7-5b76-4938-9e5b-d4c9974597e9" class="">Option 1</h3><p id="a853aa37-6414-4999-9b15-1592ac9705d8" class="">We can consider each column of <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>W</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">W_1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.13889em;">W</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.13889em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></span><span>﻿</span></span> (N x V) the representation of a word in our vocabulary </p><figure id="4e9140e3-78fe-47d4-9b0b-828b8f65e22d" class="image"><a href="Word%20embedding%20with%20NN%2072c9de5a698149a589995eac2d5c8f32/Untitled%2014.png"><img style="width:507px" src="Word%20embedding%20with%20NN%2072c9de5a698149a589995eac2d5c8f32/Untitled%2014.png"/></a></figure><h3 id="0e6a5c4f-9ffc-4fa9-b29e-f8e338470c0c" class="">Option 2</h3><p id="078f407f-d1bf-4665-b419-8c8c86d1be16" class="">We can consider each row of <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>W</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">W_2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.13889em;">W</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.13889em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></span><span>﻿</span></span> (V x N) the representation of a word in our vocabulary</p><figure id="b122824c-e249-4e80-8c7a-e66474037962" class="image"><a href="Word%20embedding%20with%20NN%2072c9de5a698149a589995eac2d5c8f32/Untitled%2015.png"><img style="width:446px" src="Word%20embedding%20with%20NN%2072c9de5a698149a589995eac2d5c8f32/Untitled%2015.png"/></a></figure><h3 id="093e8546-b513-4918-8de3-e795a8f087a7" class="">Option 3</h3><p id="f4e97880-d7a9-44d3-9bd5-127fcbde4274" class="">Take the average of the first two options</p><figure id="bc06edb3-a4f4-43a2-a968-31d03571d217" class="image"><a href="Word%20embedding%20with%20NN%2072c9de5a698149a589995eac2d5c8f32/Untitled%2016.png"><img style="width:761px" src="Word%20embedding%20with%20NN%2072c9de5a698149a589995eac2d5c8f32/Untitled%2016.png"/></a></figure><h1 id="ef1c3189-c971-40ef-9b82-463704b278dc" class="block-color-blue">Word embedding evaluation</h1><h2 id="124b4763-157f-4e31-8391-9eae7aa358f0" class="block-color-purple">Intrinsic evaluation</h2><p id="a2167aba-92a6-4e2b-9714-9473977a8bd0" class="">Test relationships between words (semantic or syntactic)</p><figure id="f6047fa0-23ce-4029-bd35-d9df3002e41b" class="image"><a href="Word%20embedding%20with%20NN%2072c9de5a698149a589995eac2d5c8f32/Untitled%2017.png"><img style="width:581px" src="Word%20embedding%20with%20NN%2072c9de5a698149a589995eac2d5c8f32/Untitled%2017.png"/></a></figure><h2 id="83b35a10-b872-497e-a903-a2621749922c" class="block-color-purple">Extrinsic evaluation</h2><p id="c73fa96f-e271-4c09-83ef-2eb14cc80f68" class="">Test word on external task (and use metrics of this task)</p><p id="7121aedb-de40-407d-81cf-32a36321451e" class="">task → named entity recognition, part-of-speech tagging...</p><p id="5b8ee1c5-86fa-4a36-892c-68b2edb271bd" class="">metrics → accuracy, f1 score</p><p id="eeab6427-6cf7-4e4b-8756-6911dfd40fa0" class="">
+</p><p id="66c2565f-076b-4c73-bad5-02108d36e119" class="">It&#x27;s the ultimate test for word embedding, BUT:</p><ul id="f98920ee-d5c7-403f-bdfb-fb477c53e93c" class="bulleted-list"><li>it&#x27;s time consuming</li></ul><ul id="093e41c6-904c-4117-9a66-dd2a01dec84b" class="bulleted-list"><li>More difficult to troubleshoot</li></ul></div></article></body></html>

@@ -1,0 +1,630 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Siamese NN (Similar questions)</title><style>
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	text-indent: -1.7em;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, YuMincho, "Yu Mincho", "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Songti TC", "Songti SC", "SimSun", "Nanum Myeongjo", NanumMyeongjo, Batang, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC', 'Noto Sans CJK KR'; }
+
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC', 'Noto Sans Mono CJK KR'; }
+
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, YuMincho, "Yu Mincho", "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Songti TC", "Songti SC", "SimSun", "Nanum Myeongjo", NanumMyeongjo, Batang, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC', 'Noto Sans CJK KR'; }
+
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC', 'Noto Sans Mono CJK KR'; }
+
+.highlight-default {
+}
+.highlight-gray {
+	color: rgb(155,154,151);
+}
+.highlight-brown {
+	color: rgb(100,71,58);
+}
+.highlight-orange {
+	color: rgb(217,115,13);
+}
+.highlight-yellow {
+	color: rgb(223,171,1);
+}
+.highlight-teal {
+	color: rgb(15,123,108);
+}
+.highlight-blue {
+	color: rgb(11,110,153);
+}
+.highlight-purple {
+	color: rgb(105,64,165);
+}
+.highlight-pink {
+	color: rgb(173,26,114);
+}
+.highlight-red {
+	color: rgb(224,62,62);
+}
+.highlight-gray_background {
+	background: rgb(235,236,237);
+}
+.highlight-brown_background {
+	background: rgb(233,229,227);
+}
+.highlight-orange_background {
+	background: rgb(250,235,221);
+}
+.highlight-yellow_background {
+	background: rgb(251,243,219);
+}
+.highlight-teal_background {
+	background: rgb(221,237,234);
+}
+.highlight-blue_background {
+	background: rgb(221,235,241);
+}
+.highlight-purple_background {
+	background: rgb(234,228,242);
+}
+.highlight-pink_background {
+	background: rgb(244,223,235);
+}
+.highlight-red_background {
+	background: rgb(251,228,228);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(55, 53, 47, 0.6);
+	fill: rgba(55, 53, 47, 0.6);
+}
+.block-color-brown {
+	color: rgb(100,71,58);
+	fill: rgb(100,71,58);
+}
+.block-color-orange {
+	color: rgb(217,115,13);
+	fill: rgb(217,115,13);
+}
+.block-color-yellow {
+	color: rgb(223,171,1);
+	fill: rgb(223,171,1);
+}
+.block-color-teal {
+	color: rgb(15,123,108);
+	fill: rgb(15,123,108);
+}
+.block-color-blue {
+	color: rgb(11,110,153);
+	fill: rgb(11,110,153);
+}
+.block-color-purple {
+	color: rgb(105,64,165);
+	fill: rgb(105,64,165);
+}
+.block-color-pink {
+	color: rgb(173,26,114);
+	fill: rgb(173,26,114);
+}
+.block-color-red {
+	color: rgb(224,62,62);
+	fill: rgb(224,62,62);
+}
+.block-color-gray_background {
+	background: rgb(235,236,237);
+}
+.block-color-brown_background {
+	background: rgb(233,229,227);
+}
+.block-color-orange_background {
+	background: rgb(250,235,221);
+}
+.block-color-yellow_background {
+	background: rgb(251,243,219);
+}
+.block-color-teal_background {
+	background: rgb(221,237,234);
+}
+.block-color-blue_background {
+	background: rgb(221,235,241);
+}
+.block-color-purple_background {
+	background: rgb(234,228,242);
+}
+.block-color-pink_background {
+	background: rgb(244,223,235);
+}
+.block-color-red_background {
+	background: rgb(251,228,228);
+}
+.select-value-color-default { background-color: rgba(206,205,202,0.5); }
+.select-value-color-gray { background-color: rgba(155,154,151, 0.4); }
+.select-value-color-brown { background-color: rgba(140,46,0,0.2); }
+.select-value-color-orange { background-color: rgba(245,93,0,0.2); }
+.select-value-color-yellow { background-color: rgba(233,168,0,0.2); }
+.select-value-color-green { background-color: rgba(0,135,107,0.2); }
+.select-value-color-blue { background-color: rgba(0,120,223,0.2); }
+.select-value-color-purple { background-color: rgba(103,36,222,0.2); }
+.select-value-color-pink { background-color: rgba(221,0,129,0.2); }
+.select-value-color-red { background-color: rgba(255,0,26,0.2); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="f0d185be-90a6-41d1-b6ed-24465b65bbc8" class="page sans"><header><img class="page-cover-image" src="https://www.notion.so/images/page-cover/rijksmuseum_rembrandt_1642.jpg" style="object-position:center 60%"/><div class="page-header-icon page-header-icon-with-cover"><span class="icon">🐈</span></div><h1 class="page-title">Siamese NN (Similar questions)</h1></header><div class="page-body"><figure id="fe2de254-ff24-4065-8839-5e2156f6f2ad"><a href="https://www.coursera.org/learn/sequence-models-in-nlp/home/week/4" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Coursera | Online Courses &amp; Credentials From Top Educators. Join for Free | Coursera</div><div class="bookmark-description">Learn online and earn valuable credentials from top universities like Yale, Michigan, Stanford, and leading companies like Google and IBM. Join Coursera for free and transform your career with degrees, certificates, Specializations, &amp; MOOCs in data science, computer science, business, and dozens of other topics.</div></div><div class="bookmark-href"><img src="https://d3njjcbhbojbot.cloudfront.net/web/images/favicons/icon-blue-32x32.png" class="icon bookmark-icon"/>https://www.coursera.org/learn/sequence-models-in-nlp/home/week/4</div></div><img src="https://s3.amazonaws.com/coursera/media/Partner_Logos.png" class="bookmark-image"/></a></figure><h1 id="37dc70ed-941a-4fbf-a06d-848438111d7c" class="block-color-blue">Siamese NN</h1><p id="f6b33b8c-3d41-4013-ad4a-0e00cf8b7a0d" class=""><em>Identify similarity between things, with a score.</em></p><p id="7a01b692-7dcf-4d9e-a1f4-e98ee3411f1f" class="block-color-gray">Application → Question duplicate, Handwritten signature, query (similar or tint)</p><h2 id="0248d55b-8648-436b-b11d-446ecfe7ff56" class="block-color-purple">Architecture</h2><p id="0aa87250-d5a4-4baf-aa62-1df43fc32eab" class="">2 subnetwork, that are merge in one dense NN</p><p id="4ba4bed5-6d4c-4c94-b4d7-311284a4161b" class="">Weight for the two subnetwork are the same (only one training is needed)</p><figure id="4c47f028-157f-475e-8c77-0e1e79ce92dc" class="image"><a href="Siamese%20NN%20(Similar%20questions)%20f0d185be90a641d1b6ed24465b65bbc8/022BCA01-632B-49A7-9138-6A64BFF95FCF.jpeg"><img style="width:1728px" src="Siamese%20NN%20(Similar%20questions)%20f0d185be90a641d1b6ed24465b65bbc8/022BCA01-632B-49A7-9138-6A64BFF95FCF.jpeg"/></a></figure><figure class="block-color-teal_background callout" style="white-space:pre-wrap;display:flex" id="f120f5b0-b864-44e1-bfe7-cc14c93a848e"><div style="font-size:1.5em"><span class="icon">☝🏻</span></div><div style="width:100%"><em>This an exemple, the use of LSTM is not mandatory </em></div></figure><p id="78df8699-2552-4f7d-9fcd-ceac2c750f25" class="">Here we use <a href="Vector%20Space%20Models%20266dd30aba6844218b4ed1da0d8edb93.html">Cosine similarity</a> to compare the two vector outputted by the two subnetwork</p><h1 id="98634559-6972-4fcc-828f-3a3f0d703d31" class="block-color-blue">Cost</h1><h2 id="9256bbdf-7d13-4bc5-ab67-7da71cca3d93" class="block-color-purple">Similarity diff</h2><ul id="edfb632f-94b9-4579-b611-d09a621217a9" class="bulleted-list"><li><mark class="highlight-teal">Anchor</mark> → base question</li></ul><ul id="345a0908-67fc-4af4-9065-cf4fcc8f35c0" class="bulleted-list"><li><mark class="highlight-teal">Positive exemple</mark> → similar to anchor </li></ul><ul id="3459bb6b-0a7c-4fa2-b30d-fddb9a2b8c4e" class="bulleted-list"><li><mark class="highlight-teal">Negative exemple</mark> → not similar to anchor  </li></ul><p id="82d732d5-b13c-43ba-bc10-59a4f39b37e7" class="">We compare the similarity (<a href="Vector%20Space%20Models%20266dd30aba6844218b4ed1da0d8edb93.html">Cosine similarity</a>) between the anchor and a positive exemple <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo stretchy="false">(</mo><mi>A</mi><mo separator="true">,</mo><mi>P</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">s(A,P)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault">s</span><span class="mopen">(</span><span class="mord mathdefault">A</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="mclose">)</span></span></span></span></span><span>﻿</span></span> and the similarity between the anchor and a negative exemple <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo stretchy="false">(</mo><mi>A</mi><mo separator="true">,</mo><mi>P</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">s(A,P)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault">s</span><span class="mopen">(</span><span class="mord mathdefault">A</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="mclose">)</span></span></span></span></span><span>﻿</span></span> by subtracting them.</p><figure class="block-color-red_background callout" style="white-space:pre-wrap;display:flex" id="2d4d31ba-af98-4485-b828-8ff62f75d072"><div style="font-size:1.5em"><span class="icon">📐</span></div><div style="width:100%"><style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext>diff</mtext><mo>=</mo><mi>s</mi><mo stretchy="false">(</mo><mi>A</mi><mo separator="true">,</mo><mi>N</mi><mo stretchy="false">)</mo><mo>−</mo><mi>s</mi><mo stretchy="false">(</mo><mi>A</mi><mo separator="true">,</mo><mi>P</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\text{diff} = s(A, N) - s(A, P)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord text"><span class="mord">diff</span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault">s</span><span class="mopen">(</span><span class="mord mathdefault">A</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault">s</span><span class="mopen">(</span><span class="mord mathdefault">A</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="mclose">)</span></span></span></span></span><span>﻿</span></span></div></figure><p id="6de5ea00-4d30-4211-bafc-f2b69517e56d" class="">We want <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo stretchy="false">(</mo><mi>A</mi><mo separator="true">,</mo><mi>P</mi><mo stretchy="false">)</mo><mo>≥</mo><mi>s</mi><mo stretchy="false">(</mo><mi>A</mi><mo separator="true">,</mo><mi>N</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">s(A, P) ≥ s(A, N)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault">s</span><span class="mopen">(</span><span class="mord mathdefault">A</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">≥</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault">s</span><span class="mopen">(</span><span class="mord mathdefault">A</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="mclose">)</span></span></span></span></span><span>﻿</span></span> </p><p id="d68fcadd-6ad2-479b-82f0-cd6b26143336" class="">If that the case →  <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo stretchy="false">(</mo><mi>A</mi><mo separator="true">,</mo><mi>N</mi><mo stretchy="false">)</mo><mo>−</mo><mi>s</mi><mo stretchy="false">(</mo><mi>A</mi><mo separator="true">,</mo><mi>P</mi><mo stretchy="false">)</mo><mo>≤</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">s(A, N) - s(A, P) ≤ 0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault">s</span><span class="mopen">(</span><span class="mord mathdefault">A</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault">s</span><span class="mopen">(</span><span class="mord mathdefault">A</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">≤</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">0</span></span></span></span></span><span>﻿</span></span></p><div id="6a19e1b9-1cff-419b-9198-97b2aae941b9" class="column-list"><div id="139165c2-0ce5-44f9-ae61-ce8d2860ed3c" style="width:68.75%" class="column"><figure id="8961023b-83d7-41ee-a74b-0e30a965b1fa" class="image"><a href="Siamese%20NN%20(Similar%20questions)%20f0d185be90a641d1b6ed24465b65bbc8/A1AAEC8B-41AF-4AA9-85C9-BD91A7A39802.jpeg"><img style="width:1752px" src="Siamese%20NN%20(Similar%20questions)%20f0d185be90a641d1b6ed24465b65bbc8/A1AAEC8B-41AF-4AA9-85C9-BD91A7A39802.jpeg"/></a></figure></div><div id="fc87b020-28c8-4d0e-87cf-3cd2cb6d8a81" style="width:31.249999999999993%" class="column"><figure id="cf771f27-b190-4f4f-aae7-12408bd7449c" class="image"><a href="Siamese%20NN%20(Similar%20questions)%20f0d185be90a641d1b6ed24465b65bbc8/ED1B740B-8118-4CC0-87D1-CAFA7D844E34.jpeg"><img style="width:336px" src="Siamese%20NN%20(Similar%20questions)%20f0d185be90a641d1b6ed24465b65bbc8/ED1B740B-8118-4CC0-87D1-CAFA7D844E34.jpeg"/></a></figure></div></div><h2 id="c71bd948-75d9-42cb-839e-8b1cd69c3a81" class="block-color-purple">Triplets Loss</h2><ul id="4fd6da2e-e654-47da-9abe-1c9693c5d307" class="bulleted-list"><li><mark class="highlight-teal">Triplets</mark> → one anchor, one positive and one negative exemple</li></ul><figure id="eaa8cb96-ea88-4569-8e2c-11afcf5d2153" class="image"><a href="Siamese%20NN%20(Similar%20questions)%20f0d185be90a641d1b6ed24465b65bbc8/CFB9C5C5-0623-48EC-995B-0625A1B8ABC8.jpeg"><img style="width:480px" src="Siamese%20NN%20(Similar%20questions)%20f0d185be90a641d1b6ed24465b65bbc8/CFB9C5C5-0623-48EC-995B-0625A1B8ABC8.jpeg"/></a></figure><ul id="1ce82856-9eec-4a9d-ac33-056554dd8503" class="bulleted-list"><li><mark class="highlight-pink">diff</mark> → check that <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo stretchy="false">(</mo><mi>A</mi><mo separator="true">,</mo><mi>P</mi><mo stretchy="false">)</mo><mo>≥</mo><mi>s</mi><mo stretchy="false">(</mo><mi>A</mi><mo separator="true">,</mo><mi>N</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">s(A, P) ≥ s(A, N)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault">s</span><span class="mopen">(</span><span class="mord mathdefault">A</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">≥</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault">s</span><span class="mopen">(</span><span class="mord mathdefault">A</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="mclose">)</span></span></span></span></span><span>﻿</span></span></li></ul><ul id="3d898653-06c1-494e-a547-766225d863c3" class="bulleted-list"><li><mark class="highlight-pink">Non linearity</mark> → As soon as <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext>diff</mtext><mo>≥</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\text{diff} ≥ 0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83041em;vertical-align:-0.13597em;"></span><span class="mord text"><span class="mord">diff</span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">≥</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">0</span></span></span></span></span><span>﻿</span></span> (so <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo stretchy="false">(</mo><mi>A</mi><mo separator="true">,</mo><mi>P</mi><mo stretchy="false">)</mo><mo>≥</mo><mi>s</mi><mo stretchy="false">(</mo><mi>A</mi><mo separator="true">,</mo><mi>N</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">s(A, P) ≥ s(A, N)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault">s</span><span class="mopen">(</span><span class="mord mathdefault">A</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">≥</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault">s</span><span class="mopen">(</span><span class="mord mathdefault">A</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="mclose">)</span></span></span></span></span><span>﻿</span></span>), we have a good enough diff. There&#x27;s no interest to learning more, so as soon as the diff is under zero, we say the cost is always zero</li></ul><ul id="a93b8483-4fdc-4ca1-9a89-6e07c6827dcb" class="bulleted-list"><li><mark class="highlight-pink">Alpha margin</mark> → we don’t want to stop the training as soon as s(A, P) ≥ s(A, N), we want a minimum gap between them defined by alpha</li></ul><figure id="22f495c1-d628-4b1a-9eef-3836e9a29978" class="image"><a href="Siamese%20NN%20(Similar%20questions)%20f0d185be90a641d1b6ed24465b65bbc8/4649C1DD-D720-446B-B107-6EA685729B9C.jpeg"><img style="width:1925px" src="Siamese%20NN%20(Similar%20questions)%20f0d185be90a641d1b6ed24465b65bbc8/4649C1DD-D720-446B-B107-6EA685729B9C.jpeg"/></a></figure><h3 id="dacecdd9-bd18-4cb8-820f-1406ded452af" class=""><em>Triplet selection </em></h3><p id="42681ed0-9961-42ee-8221-1ee5def3676a" class="">Choosing triplet randomly is not a good idea. It’s better to choose hard triplets, where <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo stretchy="false">(</mo><mi>A</mi><mo separator="true">,</mo><mi>N</mi><mo stretchy="false">)</mo><mo>=</mo><mi>S</mi><mo stretchy="false">(</mo><mi>P</mi><mo separator="true">,</mo><mi>N</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">S(A, N) = S(P, N)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.05764em;">S</span><span class="mopen">(</span><span class="mord mathdefault">A</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.05764em;">S</span><span class="mopen">(</span><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="mclose">)</span></span></span></span></span><span>﻿</span></span></p><h2 id="ee3cc1f9-b648-444d-9cdb-4798359ed2df" class="block-color-purple">Steps to compute cost</h2><ol id="c30ecd15-aacc-4e3d-9a73-71ff287bacdd" class="numbered-list" start="1"><li>Create 2 batches: Put similar sentence on the same line and different one in the same column.
+A batch is a column<figure id="5f97a3b8-46d2-44e8-866e-138fe22d10d8" class="image"><a href="Siamese%20NN%20(Similar%20questions)%20f0d185be90a641d1b6ed24465b65bbc8/Untitled.png"><img style="width:432px" src="Siamese%20NN%20(Similar%20questions)%20f0d185be90a641d1b6ed24465b65bbc8/Untitled.png"/></a></figure></li></ol><ol id="18ec0470-7f75-4ca7-ba8a-112a0fc37c40" class="numbered-list" start="2"><li>Pass the first batch in the first subnetwork and the second batch in the second subnetwork.<p id="ab1f035e-f9bd-4f6c-b382-7c9adbfd38ed" class="">You get two matrix (<style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>v</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">v_1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.58056em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></span><span>﻿</span></span> and <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>v</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">v_2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.58056em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></span><span>﻿</span></span>) of size (<em>batch_size</em>, <em>embedding_size</em>)</p><figure id="94577671-946c-432c-ae92-79e8524ffb60" class="image"><a href="Siamese%20NN%20(Similar%20questions)%20f0d185be90a641d1b6ed24465b65bbc8/Untitled%201.png"><img style="width:732px" src="Siamese%20NN%20(Similar%20questions)%20f0d185be90a641d1b6ed24465b65bbc8/Untitled%201.png"/></a></figure></li></ol><ol id="479ff9ef-8474-44aa-af0a-9cd73268936f" class="numbered-list" start="3"><li>Compute the cosine similarity of the two <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi></mrow><annotation encoding="application/x-tex">v</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.03588em;">v</span></span></span></span></span><span>﻿</span></span> matrix : <p id="2ede78cd-4da8-4295-baf4-3b27a71a10bf" class="">Each column represent a sentence from <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>v</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">v_1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.58056em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></span><span>﻿</span></span> and each column a sentence from <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>v</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">v_2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.58056em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></span><span>﻿</span></span>. The value in a cell is the similarity between the two corresponding sentences</p><p id="0c4d7435-34ee-434d-980a-0d4e2565ac91" class="">The value in the diagonal (similarity between similar exemple) should be higher than the rest </p><figure id="407d5cc6-8a71-4862-9b22-f565abd7964b" class="image"><a href="Siamese%20NN%20(Similar%20questions)%20f0d185be90a641d1b6ed24465b65bbc8/Untitled%202.png"><img style="width:240px" src="Siamese%20NN%20(Similar%20questions)%20f0d185be90a641d1b6ed24465b65bbc8/Untitled%202.png"/></a></figure></li></ol><p id="3896bc2c-d759-46df-8291-ddbef0ad03e4" class="">
+</p><p id="cdea1319-e4a3-414b-a0e2-f88c78ba9654" class="block-color-gray"><em>We then have two choice</em></p><h3 id="3b40f1e9-93f6-4690-87e4-1e9843cffec4" class=""><em>Triplets Loss</em></h3><div id="f6550cf2-c1bc-4e41-874c-678adad4a3ba" class="column-list"><div id="f2b080bc-2519-43f9-9768-50888adbb3af" style="width:37.5%" class="column"><p id="e2798116-3d01-46e9-8268-7631a234eb7f" class="">Here we can use the triplets loss we saw before</p></div><div id="020d2960-66db-46ba-99a9-3f6ad7a1953b" style="width:62.5%" class="column"><figure id="cb2eaa48-1c27-41a7-a2c1-e16e683695d5" class="image"><a href="Siamese%20NN%20(Similar%20questions)%20f0d185be90a641d1b6ed24465b65bbc8/Untitled%203.png"><img style="width:288px" src="Siamese%20NN%20(Similar%20questions)%20f0d185be90a641d1b6ed24465b65bbc8/Untitled%203.png"/></a></figure></div></div><h3 id="7615ea97-5865-4fbb-9c91-6436ad5e6717" class=""><em>Improved Triplets Loss</em></h3><ul id="bbe027a7-f35c-4291-b3ab-159bd7af38d4" class="bulleted-list"><li><mark class="highlight-teal"><strong>Mean negative</strong></mark><strong> → </strong>Mean of values not in the diagonal (negative exemple, orange cell here)</li></ul><ul id="88a6976e-ee35-4a18-be67-495969d7d735" class="bulleted-list"><li><strong><mark class="highlight-teal">Closest negative </mark></strong>→ Value not in the diagonal closest (but smaller) to the diagonal one, in the same row</li></ul><figure id="e0a908f6-c88d-41d8-a1af-5fec3166d7f0" class="image"><a href="Siamese%20NN%20(Similar%20questions)%20f0d185be90a641d1b6ed24465b65bbc8/Untitled%204.png"><img style="width:624px" src="Siamese%20NN%20(Similar%20questions)%20f0d185be90a641d1b6ed24465b65bbc8/Untitled%204.png"/></a></figure><p id="f71a2ceb-8892-4814-bd93-ae548efe7a27" class="">We then define two new sub-loss by replacing the <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo stretchy="false">(</mo><mi>A</mi><mo separator="true">,</mo><mi>N</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">s(A, N)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault">s</span><span class="mopen">(</span><span class="mord mathdefault">A</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="mclose">)</span></span></span></span></span><span>﻿</span></span> parts or the original loss by the <mark class="highlight-teal">mean negative</mark> and the <mark class="highlight-teal">closest ngative</mark></p><p id="d63db338-fafc-4537-bd34-c7471f0e6680" class="">We then add the two sub-loss to get our real loss.</p><figure id="086ba2b9-ae79-44d1-b7da-3c2e1da1370f" class="image"><a href="Siamese%20NN%20(Similar%20questions)%20f0d185be90a641d1b6ed24465b65bbc8/Untitled%205.png"><img style="width:432px" src="Siamese%20NN%20(Similar%20questions)%20f0d185be90a641d1b6ed24465b65bbc8/Untitled%205.png"/></a></figure><h1 id="023a46c1-adad-440a-865e-9102dffaf690" class="block-color-blue">One shot learning</h1><h2 id="7e4dd05c-8ab3-488c-a1f3-185bf3d917d9" class="block-color-purple">Classification vs One Shot Learning</h2><ul id="bfc0254d-0982-4bc1-b2f3-2d0af816a061" class="bulleted-list"><li><mark class="highlight-teal">classification</mark> → put on exemple in K predefined class</li></ul><ul id="7b69eb95-e598-42a4-818c-37f89d457f6b" class="bulleted-list"><li><mark class="highlight-teal">One shot learning</mark> → compare similarity between the exemple and on reference exemple</li></ul><p id="4de381a4-7481-4e54-a1d2-443aa4ed10e0" class="">⇒ With one shot learning, you don&#x27;t need to re-train your model if you add a new class !</p><figure id="3cb44960-35b5-436b-a654-4bd3df6fb153" class="image"><a href="Siamese%20NN%20(Similar%20questions)%20f0d185be90a641d1b6ed24465b65bbc8/Untitled%206.png"><img style="width:816px" src="Siamese%20NN%20(Similar%20questions)%20f0d185be90a641d1b6ed24465b65bbc8/Untitled%206.png"/></a></figure><p id="a3e9130d-f437-4530-a0bf-7dc56b69df8f" class="">
+</p><h1 id="c8763b8e-ef85-46e3-b13e-3d8ff2ceb0f4" class="">Training</h1><ol id="0f72cbc3-c20a-4894-b273-eb1f24880011" class="numbered-list" start="1"><li>Batching</li></ol><ol id="9122f05a-b84d-4deb-ab82-9a40ba010aad" class="numbered-list" start="2"><li>Create subnetwork </li></ol><h1 id="87d08388-3ef2-4e4f-91eb-9b0998a5366a" class="">Testing</h1><figure id="945f056a-13f1-4089-b68a-059a9d0cb7a3" class="image"><a href="Siamese%20NN%20(Similar%20questions)%20f0d185be90a641d1b6ed24465b65bbc8/Untitled%207.png"><img style="width:590px" src="Siamese%20NN%20(Similar%20questions)%20f0d185be90a641d1b6ed24465b65bbc8/Untitled%207.png"/></a></figure></div></article></body></html>

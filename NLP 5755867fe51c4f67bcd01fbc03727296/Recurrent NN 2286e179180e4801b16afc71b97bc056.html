@@ -1,0 +1,632 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Recurrent NN</title><style>
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	text-indent: -1.7em;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, YuMincho, "Yu Mincho", "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Songti TC", "Songti SC", "SimSun", "Nanum Myeongjo", NanumMyeongjo, Batang, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC', 'Noto Sans CJK KR'; }
+
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC', 'Noto Sans Mono CJK KR'; }
+
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, YuMincho, "Yu Mincho", "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Songti TC", "Songti SC", "SimSun", "Nanum Myeongjo", NanumMyeongjo, Batang, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC', 'Noto Sans CJK KR'; }
+
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC', 'Noto Sans Mono CJK KR'; }
+
+.highlight-default {
+}
+.highlight-gray {
+	color: rgb(155,154,151);
+}
+.highlight-brown {
+	color: rgb(100,71,58);
+}
+.highlight-orange {
+	color: rgb(217,115,13);
+}
+.highlight-yellow {
+	color: rgb(223,171,1);
+}
+.highlight-teal {
+	color: rgb(15,123,108);
+}
+.highlight-blue {
+	color: rgb(11,110,153);
+}
+.highlight-purple {
+	color: rgb(105,64,165);
+}
+.highlight-pink {
+	color: rgb(173,26,114);
+}
+.highlight-red {
+	color: rgb(224,62,62);
+}
+.highlight-gray_background {
+	background: rgb(235,236,237);
+}
+.highlight-brown_background {
+	background: rgb(233,229,227);
+}
+.highlight-orange_background {
+	background: rgb(250,235,221);
+}
+.highlight-yellow_background {
+	background: rgb(251,243,219);
+}
+.highlight-teal_background {
+	background: rgb(221,237,234);
+}
+.highlight-blue_background {
+	background: rgb(221,235,241);
+}
+.highlight-purple_background {
+	background: rgb(234,228,242);
+}
+.highlight-pink_background {
+	background: rgb(244,223,235);
+}
+.highlight-red_background {
+	background: rgb(251,228,228);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(55, 53, 47, 0.6);
+	fill: rgba(55, 53, 47, 0.6);
+}
+.block-color-brown {
+	color: rgb(100,71,58);
+	fill: rgb(100,71,58);
+}
+.block-color-orange {
+	color: rgb(217,115,13);
+	fill: rgb(217,115,13);
+}
+.block-color-yellow {
+	color: rgb(223,171,1);
+	fill: rgb(223,171,1);
+}
+.block-color-teal {
+	color: rgb(15,123,108);
+	fill: rgb(15,123,108);
+}
+.block-color-blue {
+	color: rgb(11,110,153);
+	fill: rgb(11,110,153);
+}
+.block-color-purple {
+	color: rgb(105,64,165);
+	fill: rgb(105,64,165);
+}
+.block-color-pink {
+	color: rgb(173,26,114);
+	fill: rgb(173,26,114);
+}
+.block-color-red {
+	color: rgb(224,62,62);
+	fill: rgb(224,62,62);
+}
+.block-color-gray_background {
+	background: rgb(235,236,237);
+}
+.block-color-brown_background {
+	background: rgb(233,229,227);
+}
+.block-color-orange_background {
+	background: rgb(250,235,221);
+}
+.block-color-yellow_background {
+	background: rgb(251,243,219);
+}
+.block-color-teal_background {
+	background: rgb(221,237,234);
+}
+.block-color-blue_background {
+	background: rgb(221,235,241);
+}
+.block-color-purple_background {
+	background: rgb(234,228,242);
+}
+.block-color-pink_background {
+	background: rgb(244,223,235);
+}
+.block-color-red_background {
+	background: rgb(251,228,228);
+}
+.select-value-color-default { background-color: rgba(206,205,202,0.5); }
+.select-value-color-gray { background-color: rgba(155,154,151, 0.4); }
+.select-value-color-brown { background-color: rgba(140,46,0,0.2); }
+.select-value-color-orange { background-color: rgba(245,93,0,0.2); }
+.select-value-color-yellow { background-color: rgba(233,168,0,0.2); }
+.select-value-color-green { background-color: rgba(0,135,107,0.2); }
+.select-value-color-blue { background-color: rgba(0,120,223,0.2); }
+.select-value-color-purple { background-color: rgba(103,36,222,0.2); }
+.select-value-color-pink { background-color: rgba(221,0,129,0.2); }
+.select-value-color-red { background-color: rgba(255,0,26,0.2); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="2286e179-180e-4801-b16a-fc71b97bc056" class="page sans"><header><div class="page-header-icon undefined"><span class="icon">🌀</span></div><h1 class="page-title">Recurrent NN</h1></header><div class="page-body"><figure id="9e0ccebe-3bd4-46c2-97c8-e75a0f07c5a6"><a href="https://www.coursera.org/learn/sequence-models-in-nlp/home/week/2" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Coursera | Online Courses &amp; Credentials From Top Educators. Join for Free | Coursera</div><div class="bookmark-description">Learn online and earn valuable credentials from top universities like Yale, Michigan, Stanford, and leading companies like Google and IBM. Join Coursera for free and transform your career with degrees, certificates, Specializations, &amp; MOOCs in data science, computer science, business, and dozens of other topics.</div></div><div class="bookmark-href"><img src="https://d3njjcbhbojbot.cloudfront.net/web/images/favicons/icon-blue-32x32.png" class="icon bookmark-icon"/>https://www.coursera.org/learn/sequence-models-in-nlp/home/week/2</div></div><img src="https://s3.amazonaws.com/coursera/media/Partner_Logos.png" class="bookmark-image"/></a></figure><h3 id="767db9c5-efec-4e55-9419-75fca866e41d" class=""><em>Introduction</em></h3><p id="2ebff217-af22-48d3-8ee5-bb779ee05a97" class=""><style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi></mrow><annotation encoding="application/x-tex">N</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span></span></span></span></span><span>﻿</span></span>-gram model take a lot of place in memory → not the best</p><p id="916af104-8002-4e63-9527-158763f04bec" class="">To make a prediction:</p><ul id="5b82c8d3-e2e4-4463-bf1e-329d59dc1254" class="bulleted-list"><li>N-gram look at the N previous word</li></ul><ul id="c9343c59-3a0f-4034-9b2f-1901509a9e5c" class="bulleted-list"><li>RNN look at all the sentence</li></ul><p id="c46ed6b3-5d34-4cf8-b86f-14cc4a626a26" class="">⇒ RNN is better</p><h1 id="e40a501c-e8b2-4b06-8db8-7c3e33e5148b" class="block-color-blue">Recurrent Neural Network</h1><p id="430ad725-765d-4fb9-b949-d9f7c0ffcbaa" class="">At each step, the RNN take the previous output and the new input.</p><p id="84cbc56f-4302-4ee6-b609-55cd0ab5b3e3" class="block-color-gray"><em>the </em><em><style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>W</mi><mi>h</mi></msub></mrow><annotation encoding="application/x-tex">W_h</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.13889em;">W</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:-0.13889em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">h</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></span><span>﻿</span></span></em><em> and </em><em><style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>W</mi><mi>z</mi></msub></mrow><annotation encoding="application/x-tex">W_z</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.13889em;">W</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.13889em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.04398em;">z</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></span><span>﻿</span></span></em><em> are the same for each step</em></p><figure id="63cd0764-5dce-4cce-bc63-3b53ed634d34" class="image"><a href="Recurrent%20NN%202286e179180e4801b16afc71b97bc056/Untitled.png"><img style="width:775px" src="Recurrent%20NN%202286e179180e4801b16afc71b97bc056/Untitled.png"/></a></figure><p id="8b77faa8-524f-4c5a-ab9e-d218f9e0a989" class="">Learnable parameters → <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>W</mi><mi>h</mi></msub></mrow><annotation encoding="application/x-tex">W_h</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.13889em;">W</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:-0.13889em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">h</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></span><span>﻿</span></span>, <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>W</mi><mi>x</mi></msub></mrow><annotation encoding="application/x-tex">W_x</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.13889em;">W</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.13889em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">x</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></span><span>﻿</span></span> and <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi></mrow><annotation encoding="application/x-tex">W</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">W</span></span></span></span></span><span>﻿</span></span></p><h3 id="0bb78d97-b3d1-4ff8-a789-0f2346dbdf8a" class=""><em>Advantages</em></h3><figure id="10c1aac1-190b-49a2-8fa4-f88a4858cffe" class="image"><a href="Recurrent%20NN%202286e179180e4801b16afc71b97bc056/Untitled%201.png"><img style="width:528px" src="Recurrent%20NN%202286e179180e4801b16afc71b97bc056/Untitled%201.png"/></a></figure><h2 id="f9330350-d931-4da6-8334-4fa8a6b2bf90" class="block-color-purple">Types of RNN</h2><p id="cb83bdbc-8b04-4dd5-a23d-c9f2b12e1636" class="">RNN input and output can change</p><div id="3a873781-b918-4a1c-8d28-eb3cf741e308" class="column-list"><div id="9585d061-1695-4fd1-b037-d20b918a1cee" style="width:43.75%" class="column"><figure id="23cbfd55-8192-45cd-a7e2-34802c1a55b1" class="image"><a href="Recurrent%20NN%202286e179180e4801b16afc71b97bc056/1D92942E-9450-43E2-B9C7-3313A8AC4CDB.jpeg"><img style="width:480px" src="Recurrent%20NN%202286e179180e4801b16afc71b97bc056/1D92942E-9450-43E2-B9C7-3313A8AC4CDB.jpeg"/></a></figure></div><div id="ac85e755-58d8-4d36-83b3-d036db2caa6f" style="width:56.25%" class="column"><figure id="c097393a-21c6-4be9-9f91-989fa47089b7" class="image"><a href="Recurrent%20NN%202286e179180e4801b16afc71b97bc056/E9D718C7-8AAD-4BB9-9914-871AFB2ABF06.jpeg"><img style="width:480px" src="Recurrent%20NN%202286e179180e4801b16afc71b97bc056/E9D718C7-8AAD-4BB9-9914-871AFB2ABF06.jpeg"/></a></figure></div></div><div id="96d1f88c-11cb-408f-9077-b6f2595d335a" class="column-list"><div id="4a5d4b40-aabc-4f56-84dc-0af99f26b25f" style="width:50%" class="column"><figure id="d7c2f0c7-9118-4565-866a-e8e3aacc0b9f" class="image"><a href="Recurrent%20NN%202286e179180e4801b16afc71b97bc056/37DC7128-57B4-4DA6-AB9F-87F3EF7E96D1.jpeg"><img style="width:480px" src="Recurrent%20NN%202286e179180e4801b16afc71b97bc056/37DC7128-57B4-4DA6-AB9F-87F3EF7E96D1.jpeg"/></a></figure></div><div id="60b10ef8-7be1-400f-86ef-8ccb5f5921d5" style="width:50%" class="column"><figure id="8ee735d6-ea4d-40aa-a9a8-db67392adfab" class="image"><a href="Recurrent%20NN%202286e179180e4801b16afc71b97bc056/FF851798-D0AD-4C66-B4F2-2FF905A76541.jpeg"><img style="width:480px" src="Recurrent%20NN%202286e179180e4801b16afc71b97bc056/FF851798-D0AD-4C66-B4F2-2FF905A76541.jpeg"/></a></figure></div></div><h2 id="699f957d-ca3c-48bd-b513-542e0a8d0324" class="block-color-purple">Formula</h2><p id="7b47d1e6-4973-4e6b-b7bd-8597d6f0bf71" class="">There&#x27;s 2 formula:</p><figure id="2ac20999-cef9-4799-acf3-91b50cf3c21e" class="image"><a href="Recurrent%20NN%202286e179180e4801b16afc71b97bc056/71FD52F5-0379-4CD6-8805-600165DFAFA7.jpeg"><img style="width:1974px" src="Recurrent%20NN%202286e179180e4801b16afc71b97bc056/71FD52F5-0379-4CD6-8805-600165DFAFA7.jpeg"/></a></figure><p id="9e6070dd-545b-4d58-9948-affef9dcb238" class="">2 equivalent formula for h:</p><pre id="b29a4f57-8c2a-4688-b501-50dd52ac94df" class="code"><code># [Wh_t,Wx] @ [h_t_prev, x]
+res1 = np.matmul(np.hstack((w_hh, w_hx)), np.vstack((h_t_prev, x_t)))
+# (Wh_t @ h_t_prev) * (Wx @ x)
+res2 = np.matmul(w_hh, h_t_prev) + np.matmul(w_hx, x_t)
+
+res1 == res2 # True</code></pre><p id="992b6474-077d-44bf-938b-e497d0304451" class="">Schema of one step of a RNN</p><div id="fe44eff3-edad-46af-a75a-d6da8e30d923" class="column-list"><div id="e7e9b95c-1c0b-45f9-93d6-367e0ab66af1" style="width:50%" class="column"><figure id="7ba8ff8c-d458-4407-a9d0-ad3cd1f25e81" class="image"><a href="Recurrent%20NN%202286e179180e4801b16afc71b97bc056/BDB926E9-DBA4-4C92-81AF-017E00C91662.jpeg"><img style="width:432px" src="Recurrent%20NN%202286e179180e4801b16afc71b97bc056/BDB926E9-DBA4-4C92-81AF-017E00C91662.jpeg"/></a></figure></div><div id="350dce85-0d6a-4d64-a636-d888c919bd22" style="width:50%" class="column"><figure id="105fcd96-b19b-41fa-9d4e-f97763760c52" class="image"><a href="Recurrent%20NN%202286e179180e4801b16afc71b97bc056/Untitled%202.png"><img style="width:384px" src="Recurrent%20NN%202286e179180e4801b16afc71b97bc056/Untitled%202.png"/></a><figcaption>gate location</figcaption></figure></div></div><h2 id="569b3b9e-979e-44c3-b267-c373a5ce9f68" class="block-color-purple">Loss</h2><p id="4c699169-5d67-4f3d-a7fb-7a116d284d0f" class=""><mark class="highlight-teal">Cross entropy</mark> loss, averaged with respect to time</p><figure id="7f25fff4-4f0e-45cf-852f-8281d123fe22" class="image"><a href="Recurrent%20NN%202286e179180e4801b16afc71b97bc056/1F6BC9FD-149F-4DCF-8376-B8256B291911.jpeg"><img style="width:1974px" src="Recurrent%20NN%202286e179180e4801b16afc71b97bc056/1F6BC9FD-149F-4DCF-8376-B8256B291911.jpeg"/></a><figcaption>Loss formula for one exemple</figcaption></figure><p id="a251c39f-f6be-4dbc-a8ba-e32706344a32" class="">To get the cost value of a model, average the loss value of each exemple</p><h2 id="e169ef74-4a81-4c69-a996-ea67019a477c" class="block-color-purple">Implementation</h2><p id="23967054-c606-467f-8638-aca6ad544cb2" class="">We can use <code>tf.scan()</code> from tensorFlow to implement RNN</p><figure id="f17ae110-a24e-4ebc-b282-d8d5192d9566" class="image"><a href="Recurrent%20NN%202286e179180e4801b16afc71b97bc056/C0FC9832-86A9-49A7-B31B-7459C6042EB7.jpeg"><img style="width:2001px" src="Recurrent%20NN%202286e179180e4801b16afc71b97bc056/C0FC9832-86A9-49A7-B31B-7459C6042EB7.jpeg"/></a></figure><h1 id="fab0f40b-7618-419a-bed7-75bd49f2fff9" class="block-color-blue">Gated Recurrent Units (GRU)</h1><p id="189e0ce9-5499-42b9-8e56-f4e52435b03c" class="">There’s a <mark class="highlight-teal">Relevant</mark> and an <mark class="highlight-teal">Update</mark> gates, used to choose what to keep for the next hidden state </p><figure id="9be28747-660b-4ab1-93a8-9d14cf3e03d7" class="image"><a href="Recurrent%20NN%202286e179180e4801b16afc71b97bc056/85A2073D-C126-48BC-8D3F-9C6FD946DC90.jpeg"><img style="width:1987px" src="Recurrent%20NN%202286e179180e4801b16afc71b97bc056/85A2073D-C126-48BC-8D3F-9C6FD946DC90.jpeg"/></a></figure><h2 id="78233753-dc9f-4c17-bd0c-6b6d0859fa8d" class="block-color-purple">GRU vs vanilla RNN</h2><h3 id="f3c32f0f-1c55-48ed-ad12-3b2f6d8e9020" class="">Vanilla</h3><ul id="0c691147-b0ac-4395-85e9-9d9560cc90d0" class="block-color-red bulleted-list"><li>Update hidden state each time: if long, information tend to vanish (vanishing gradients problem)</li></ul><ul id="45fdbc08-b733-4197-a354-084c76eb97f4" class="block-color-teal bulleted-list"><li>Less computing (Faster execution)</li></ul><h3 id="e794e500-07ba-4d0a-9237-25d6b664feac" class="">GRU</h3><ul id="6f8543dd-a9cf-4e72-a93a-82f627e20dc1" class="block-color-teal bulleted-list"><li>Choose (learn) which information to save in hidden state → save better information and works longer</li></ul><ul id="7fbc58db-002b-4a3c-b79b-954711ac156d" class="block-color-red bulleted-list"><li>More computing (longer execution)</li></ul><h1 id="ab670020-0326-41dc-b847-3633e413e61f" class="block-color-blue">Spécial RNNs</h1><h2 id="b0634c92-3f24-45e0-b2e5-4e3a4b7c6bb8" class="block-color-purple">Bi-directional RNN</h2><ul id="fcd3c449-f307-43e2-9276-7e8bce2abff7" class="toggle"><li><details open=""><summary><mark class="highlight-yellow"><em>exemple</em></mark></summary><p id="005630e3-8e24-4c33-a165-3b33aa3a3e07" class="">Here a classic RNN wouldn&#x27;t have read the second sentence and wouldn&#x27;t know the genra of Louise</p><figure id="6e8b4e92-8caf-44ec-9cd0-c2cc762a8629" class="image"><a href="Recurrent%20NN%202286e179180e4801b16afc71b97bc056/Untitled%203.png"><img style="width:634px" src="Recurrent%20NN%202286e179180e4801b16afc71b97bc056/Untitled%203.png"/></a></figure></details></li></ul><p id="14ca6be5-e91c-407c-a443-bf3df5617c76" class="">Two indépendant RNN in different direction.</p><p id="d7f4e51c-799d-43bd-8054-7d1a36ab1a60" class="">When both RNN have computed the same output, we can get the final output using the green formula:</p><figure id="6d948896-f21f-47cc-9b2f-f80c0cfc433e" class="image"><a href="Recurrent%20NN%202286e179180e4801b16afc71b97bc056/E965C6E1-AF10-485C-AF50-1232D73D64BE.jpeg"><img style="width:1965px" src="Recurrent%20NN%202286e179180e4801b16afc71b97bc056/E965C6E1-AF10-485C-AF50-1232D73D64BE.jpeg"/></a></figure><figure class="block-color-yellow_background callout" style="white-space:pre-wrap;display:flex" id="9e208393-c4a3-4674-9540-643b1f0bb715"><div style="font-size:1.5em"><span class="icon">⚠️</span></div><div style="width:100%">Information flows from the past and the future <strong>independently</strong></div></figure><h2 id="667bf9de-2d50-4e61-87b9-56bd6e8bb627" class="block-color-purple">Deep RNN</h2><p id="30fe879d-5284-4ca1-9af7-9bcba71241e1" class="">Multiple RNN stacked up</p><figure id="8203cd95-2d7a-47d8-bb4a-5f522f2aa256" class="image"><a href="Recurrent%20NN%202286e179180e4801b16afc71b97bc056/7FC2FC09-15DB-4AB9-90F8-44AE4CCAA9FB.jpeg"><img style="width:1985px" src="Recurrent%20NN%202286e179180e4801b16afc71b97bc056/7FC2FC09-15DB-4AB9-90F8-44AE4CCAA9FB.jpeg"/></a></figure></div></article></body></html>

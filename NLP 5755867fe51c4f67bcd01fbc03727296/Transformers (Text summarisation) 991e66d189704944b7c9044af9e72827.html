@@ -1,0 +1,632 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Transformers (Text summarisation)</title><style>
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	text-indent: -1.7em;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, YuMincho, "Yu Mincho", "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Songti TC", "Songti SC", "SimSun", "Nanum Myeongjo", NanumMyeongjo, Batang, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC', 'Noto Sans CJK KR'; }
+
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC', 'Noto Sans Mono CJK KR'; }
+
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, YuMincho, "Yu Mincho", "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Songti TC", "Songti SC", "SimSun", "Nanum Myeongjo", NanumMyeongjo, Batang, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC', 'Noto Sans CJK KR'; }
+
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC', 'Noto Sans Mono CJK KR'; }
+
+.highlight-default {
+}
+.highlight-gray {
+	color: rgb(155,154,151);
+}
+.highlight-brown {
+	color: rgb(100,71,58);
+}
+.highlight-orange {
+	color: rgb(217,115,13);
+}
+.highlight-yellow {
+	color: rgb(223,171,1);
+}
+.highlight-teal {
+	color: rgb(15,123,108);
+}
+.highlight-blue {
+	color: rgb(11,110,153);
+}
+.highlight-purple {
+	color: rgb(105,64,165);
+}
+.highlight-pink {
+	color: rgb(173,26,114);
+}
+.highlight-red {
+	color: rgb(224,62,62);
+}
+.highlight-gray_background {
+	background: rgb(235,236,237);
+}
+.highlight-brown_background {
+	background: rgb(233,229,227);
+}
+.highlight-orange_background {
+	background: rgb(250,235,221);
+}
+.highlight-yellow_background {
+	background: rgb(251,243,219);
+}
+.highlight-teal_background {
+	background: rgb(221,237,234);
+}
+.highlight-blue_background {
+	background: rgb(221,235,241);
+}
+.highlight-purple_background {
+	background: rgb(234,228,242);
+}
+.highlight-pink_background {
+	background: rgb(244,223,235);
+}
+.highlight-red_background {
+	background: rgb(251,228,228);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(55, 53, 47, 0.6);
+	fill: rgba(55, 53, 47, 0.6);
+}
+.block-color-brown {
+	color: rgb(100,71,58);
+	fill: rgb(100,71,58);
+}
+.block-color-orange {
+	color: rgb(217,115,13);
+	fill: rgb(217,115,13);
+}
+.block-color-yellow {
+	color: rgb(223,171,1);
+	fill: rgb(223,171,1);
+}
+.block-color-teal {
+	color: rgb(15,123,108);
+	fill: rgb(15,123,108);
+}
+.block-color-blue {
+	color: rgb(11,110,153);
+	fill: rgb(11,110,153);
+}
+.block-color-purple {
+	color: rgb(105,64,165);
+	fill: rgb(105,64,165);
+}
+.block-color-pink {
+	color: rgb(173,26,114);
+	fill: rgb(173,26,114);
+}
+.block-color-red {
+	color: rgb(224,62,62);
+	fill: rgb(224,62,62);
+}
+.block-color-gray_background {
+	background: rgb(235,236,237);
+}
+.block-color-brown_background {
+	background: rgb(233,229,227);
+}
+.block-color-orange_background {
+	background: rgb(250,235,221);
+}
+.block-color-yellow_background {
+	background: rgb(251,243,219);
+}
+.block-color-teal_background {
+	background: rgb(221,237,234);
+}
+.block-color-blue_background {
+	background: rgb(221,235,241);
+}
+.block-color-purple_background {
+	background: rgb(234,228,242);
+}
+.block-color-pink_background {
+	background: rgb(244,223,235);
+}
+.block-color-red_background {
+	background: rgb(251,228,228);
+}
+.select-value-color-default { background-color: rgba(206,205,202,0.5); }
+.select-value-color-gray { background-color: rgba(155,154,151, 0.4); }
+.select-value-color-brown { background-color: rgba(140,46,0,0.2); }
+.select-value-color-orange { background-color: rgba(245,93,0,0.2); }
+.select-value-color-yellow { background-color: rgba(233,168,0,0.2); }
+.select-value-color-green { background-color: rgba(0,135,107,0.2); }
+.select-value-color-blue { background-color: rgba(0,120,223,0.2); }
+.select-value-color-purple { background-color: rgba(103,36,222,0.2); }
+.select-value-color-pink { background-color: rgba(221,0,129,0.2); }
+.select-value-color-red { background-color: rgba(255,0,26,0.2); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="991e66d1-8970-4944-b7c9-044af9e72827" class="page sans"><header><img class="page-cover-image" src="https://images.unsplash.com/photo-1512572525676-f9b59951929e?ixlib=rb-1.2.1&amp;q=85&amp;fm=jpg&amp;crop=entropy&amp;cs=srgb&amp;ixid=eyJhcHBfaWQiOjYzOTIxfQ" style="object-position:center 33.620000000000005%"/><div class="page-header-icon page-header-icon-with-cover"><span class="icon">🤖</span></div><h1 class="page-title">Transformers (Text summarisation)</h1></header><div class="page-body"><figure id="803a9779-cde3-4cc0-9977-0306c595ddc8"><a href="https://www.coursera.org/learn/attention-models-in-nlp/home/week/2" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Coursera | Online Courses &amp; Credentials From Top Educators. Join for Free | Coursera</div><div class="bookmark-description">Learn online and earn valuable credentials from top universities like Yale, Michigan, Stanford, and leading companies like Google and IBM. Join Coursera for free and transform your career with degrees, certificates, Specializations, &amp; MOOCs in data science, computer science, business, and dozens of other topics.</div></div><div class="bookmark-href"><img src="https://d3njjcbhbojbot.cloudfront.net/web/images/favicons/icon-blue-32x32.png" class="icon bookmark-icon"/>https://www.coursera.org/learn/attention-models-in-nlp/home/week/2</div></div><img src="https://s3.amazonaws.com/coursera/media/Partner_Logos.png" class="bookmark-image"/></a></figure><h1 id="286689dc-33eb-4d58-bef1-576f5785f5ff" class="block-color-blue">RNN vs Transformers</h1><div id="5ffe8e67-1831-4214-8f23-439ec73cb35f" class="column-list"><div id="d3c5ca62-e293-4702-a27a-5ea86fcdb478" style="width:43.75%" class="column"><h3 id="7178b8db-12c9-41f7-b95b-b21a68fc14b4" class="">RNN</h3><ul id="ce10efd9-c6ed-4d6a-b585-e023a3a692bd" class="bulleted-list"><li>No parallel computing (need element before to treat current element)</li></ul><ul id="02c76083-33f3-4ecb-9980-e56690d777d4" class="bulleted-list"><li>Gradient has to get through all the step too</li></ul><ul id="9ee1b499-2723-40b9-a1ea-23a1d2b23bcb" class="bulleted-list"><li>Vanishing gradient problem</li></ul></div><div id="d027b273-d660-451e-b1b6-dc04eda99090" style="width:56.25%" class="column"><h3 id="b29f181a-7cee-4ad3-8ce5-f724044b55fa" class="">Transformers:</h3><ul id="d5cb8713-f00c-493b-b328-11c697cb0849" class="bulleted-list"><li>Only one step</li></ul><ul id="be417255-efcc-4a8a-b968-3bdf456efce2" class="bulleted-list"><li>One gradient step</li></ul><ul id="87360f41-26d2-4fa5-86c2-f4f8860d6830" class="bulleted-list"><li>No vanishing gradient problem</li></ul></div></div><h3 id="39358a37-9207-49cd-9165-42834952e349" class="">Transformers flexing 🦾</h3><p id="b0e68036-aa65-4936-9139-41a266583b20" class="">Transformers can perform several NLP task with the same model. Here are some <mark class="highlight-yellow">exemple</mark> with T5 (<mark class="highlight-gray"><em>Text To Text Transfer Transformer</em></mark>)</p><div id="82026442-31af-45bf-81b1-405991357f47" class="column-list"><div id="a9bc43f4-b92d-4a27-94a2-a7a6f9f3a347" style="width:50%" class="column"><figure id="5da729d5-47b2-4422-8087-ef4fa8b6b67b" class="image"><a href="Transformers%20(Text%20summarisation)%20991e66d189704944b7c9044af9e72827/Untitled.png"><img style="width:659px" src="Transformers%20(Text%20summarisation)%20991e66d189704944b7c9044af9e72827/Untitled.png"/></a></figure></div><div id="379e158c-db08-4e17-8f76-69075724599c" style="width:50%" class="column"><figure id="1172e6e9-23d9-4d8f-9147-21f7162062a2" class="image"><a href="Transformers%20(Text%20summarisation)%20991e66d189704944b7c9044af9e72827/Untitled%201.png"><img style="width:667px" src="Transformers%20(Text%20summarisation)%20991e66d189704944b7c9044af9e72827/Untitled%201.png"/></a></figure></div></div><h1 id="e3ad13ee-b4b0-42ec-8b82-be58d5488a45" class="block-color-blue">Data preparation</h1><h2 id="320a68ed-12c6-428c-b684-b7572f4a5640" class="block-color-purple">Positional encoding</h2><p id="a73012e0-d651-4c47-ba6f-4b47ea6a0c88" class="">Information added to the <mark class="highlight-teal">embeddings</mark> vector to tell what&#x27;s the element <mark class="highlight-teal">position in a sequence</mark>.</p><p id="09c3acb5-803c-4091-be62-047b205d8d27" class="">Without it, transformers are not good with sequence because they don&#x27;t know the order of the elements</p><figure id="f2f4bf30-8f2c-4aeb-9052-e92c3f8b60c1" class="image"><a href="Transformers%20(Text%20summarisation)%20991e66d189704944b7c9044af9e72827/Untitled%202.png"><img style="width:655px" src="Transformers%20(Text%20summarisation)%20991e66d189704944b7c9044af9e72827/Untitled%202.png"/></a></figure><h1 id="b8c44acc-a9f0-4abd-928e-fa936df86d42" class="block-color-blue">Transformer encoder</h1><p id="2b449ec2-eb7a-4afe-af7e-556c3875fe0a" class="block-color-gray"><em>Not in the course, see &quot;other ressource&quot; at the end for now</em></p><h1 id="993ca09c-35c7-4733-bd0d-ca7f6d6e44e4" class="block-color-blue">Transformer decoder</h1><p id="21054a05-284d-4584-9f1b-1c4e0585458c" class="block-color-gray"><em>The transformer parts used in</em><em><mark class="highlight-gray"> </mark></em><em>GPT-2</em></p><figure class="block-color-yellow_background callout" style="white-space:pre-wrap;display:flex" id="1ad7f52a-0863-4f23-9fa9-a866c2fb164f"><div style="font-size:1.5em"><span class="icon">⚠️</span></div><div style="width:100%">Note:
+The decoder blocks presented here is the one used in the GPT-2 model, a model that only uses this block (no encoder).
+Used with encoder, decoder block are a bit different</div></figure><figure id="5752dbb0-1987-45af-bec4-0d57c3ed3c84" class="image"><a href="Transformers%20(Text%20summarisation)%20991e66d189704944b7c9044af9e72827/Untitled%203.png"><img style="width:788px" src="Transformers%20(Text%20summarisation)%20991e66d189704944b7c9044af9e72827/Untitled%203.png"/></a><figcaption><em>Overview</em></figcaption></figure><p id="21ca3298-78eb-4ea1-993f-5cc246359e5d" class="">The decoder is made of 3 main parts</p><h2 id="92f9d8db-342e-4ab5-8f39-9df28782323f" class="block-color-purple">1 - Input</h2><ol id="61f779e5-1acf-47c6-afcb-b5024eff9bc1" class="numbered-list" start="1"><li>Embedding</li></ol><ol id="cac02d8c-26de-4188-825c-9964e01ab8e3" class="numbered-list" start="2"><li>Positional Embedding</li></ol><figure id="d775eb2c-bfc8-4323-bd24-a798784325a4" class="image"><a href="Transformers%20(Text%20summarisation)%20991e66d189704944b7c9044af9e72827/Untitled%204.png"><img style="width:756px" src="Transformers%20(Text%20summarisation)%20991e66d189704944b7c9044af9e72827/Untitled%204.png"/></a></figure><h2 id="46b0bdff-23f6-4a59-b451-c822213e6778" class="block-color-purple">2 - Decoder block</h2><p id="1d9d0aa0-73c8-4664-ab59-2dafee39b19a" class="">Then &quot;<mark class="highlight-teal"><strong>decoder block</strong></mark>&quot; <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css')</style><span data-token-index="0" contenteditable="false" class="notion-text-equation-token" style="user-select:all;-webkit-user-select:all;-moz-user-select:all"><span></span><span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi></mrow><annotation encoding="application/x-tex">N</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span></span></span></span></span><span>﻿</span></span> times</p><ol id="005ccce9-543d-4d35-a972-eb76a4911c34" class="numbered-list" start="1"><li><mark class="highlight-teal"><a href="Attention%20for%20transformers%20264d7f9a7f5a4c49a7b99b9b9573a5e4.html">Multi-Head Attention</a></mark> → (causal attention, I think</li></ol><ol id="e9696202-7b58-40e7-a490-318318ec8cf4" class="numbered-list" start="2"><li>Residual connection + Normalisation :<ol id="d827d829-78f0-4391-b99c-9a747fd549b3" class="numbered-list" start="1"><li>We add result of the <em><mark class="highlight-teal">multi-head attention</mark></em> with the input of the decoder block (arrow on the side)</li></ol><ol id="affabeb9-d49b-4264-8ce9-cee0c2f54772" class="numbered-list" start="2"><li>We normalise the result (<mark class="highlight-gray">to speed up training</mark>)</li></ol></li></ol><ol id="53bb0d8b-4ca5-43df-9fbc-2692243ae6b7" class="numbered-list" start="3"><li><mark class="highlight-teal">Feed forward</mark> → fully connected neural network with Relu activation
+(<mark class="highlight-gray"><em>equivalent to hidden state of RNN decoder</em></mark>)</li></ol><ol id="51f4b00d-c7b3-47d6-bbc6-4aec6f0447ac" class="numbered-list" start="4"><li>Drop out (<mark class="highlight-gray">form of regularisation)</mark></li></ol><ol id="a8757395-3d6b-4d45-afd2-211fc048a578" class="numbered-list" start="5"><li>Residual connection + Normalisation :<ol id="ce464233-1051-42ff-8562-0ef44e8afb9c" class="numbered-list" start="1"><li>We add result of the <mark class="highlight-teal"><em>feed forward</em></mark> with the result after step 2 (arrow on the side)</li></ol><ol id="38d958e0-284d-43b2-bcf7-b3f1c2fd26c4" class="numbered-list" start="2"><li>We normalise the result (<mark class="highlight-gray">to speed up training</mark>)</li></ol></li></ol><figure id="ed7d63a4-361f-4031-905c-3d131c397b19" class="image"><a href="Transformers%20(Text%20summarisation)%20991e66d189704944b7c9044af9e72827/Untitled%205.png"><img style="width:817px" src="Transformers%20(Text%20summarisation)%20991e66d189704944b7c9044af9e72827/Untitled%205.png"/></a></figure><h2 id="7c8e7bb3-a9bf-4d54-8f1d-962c3f2ed815" class="block-color-purple">3 - Output</h2><ol id="2c4e5f91-cedb-4391-bd9f-67945115ed78" class="numbered-list" start="1"><li>Linear layer</li></ol><ol id="200b4ed4-267b-4421-a02c-e504d349b5f2" class="numbered-list" start="2"><li>Softmax layer → to have probability of the next word (among the vocabulary)</li></ol><p id="2985934b-b479-4d80-80f3-1a99961fee37" class="">(<mark class="highlight-gray">useful for </mark><mark class="highlight-gray"><em>Cross Entropy Loss</em></mark><em>)</em></p><figure id="7843b219-0959-4cb0-bbcd-ed72bd20aa62" class="image"><a href="Transformers%20(Text%20summarisation)%20991e66d189704944b7c9044af9e72827/Untitled%206.png"><img style="width:771px" src="Transformers%20(Text%20summarisation)%20991e66d189704944b7c9044af9e72827/Untitled%206.png"/></a></figure><h1 id="45094aad-5794-4411-ad04-d7dbd62fa6ce" class="block-color-blue">Implementation</h1><h2 id="fa25f0b3-fba1-4f14-980f-84c7739585d7" class="block-color-purple">Input</h2><p id="0eb5c0b1-f392-4604-ba2b-ae0b4ff14ac8" class="">Transformers <mark class="highlight-red"><strong>can only predict the next word</strong></mark>, we have to prepare our input for that.</p><p id="8c4e4656-2e52-4683-b2a2-59df604c0375" class=""><em>With a GPT-2 like model</em> (only encoder) → we put the part we want to be predicted<mark class="highlight-teal"> after our real input</mark> and feed that to our Transformer</p><p id="9ffd33c6-922e-43a9-ad55-df1fb8ecdafe" class=""><mark class="highlight-yellow">Exemple</mark> for text summarisation :</p><figure id="24631354-254a-415d-9a96-99d6f0d3f0b0" class="image"><a href="Transformers%20(Text%20summarisation)%20991e66d189704944b7c9044af9e72827/Untitled%207.png"><img style="width:432px" src="Transformers%20(Text%20summarisation)%20991e66d189704944b7c9044af9e72827/Untitled%207.png"/></a></figure><p id="6d9d9424-0a5f-411c-8524-a081fb87f6ac" class="">With that method, we have to use a <strong><mark class="highlight-teal">weighted loss </mark></strong>:<div class="indented"><ul id="13db8dc2-ecb6-4702-9940-04bc4643e5b8" class="bulleted-list"><li>words in the real input → weight of 0</li></ul><ul id="d256c54d-f33b-439a-b21e-7564d0920784" class="bulleted-list"><li>words in the part to predict → weight of 1</li></ul></div></p><h2 id="b050eed8-4849-47ec-a731-39d7792fb117" class="block-color-purple">Cost function</h2><p id="c3145b4b-7007-447c-b89f-5af0512b60ff" class=""><mark class="highlight-teal"><strong>Cross Entropy</strong></mark> loss that ignore word from the &quot;real input&quot; (with weight)</p><figure id="6450b691-a1bd-4e1b-a435-084fb510b652" class="image"><a href="Transformers%20(Text%20summarisation)%20991e66d189704944b7c9044af9e72827/Untitled%208.png"><img style="width:288px" src="Transformers%20(Text%20summarisation)%20991e66d189704944b7c9044af9e72827/Untitled%208.png"/></a></figure><h2 id="1065a2cc-d1d4-404f-9124-0e03933dd8f9" class="block-color-purple">Make a full prediction</h2><p id="37721152-a96f-4544-b680-887877ad669e" class=""><code>[already predicted words]</code> = <code>[]</code></p><p id="20789e19-880e-4a83-b83a-eaa9713c7e59" class="">Until <code>&lt;EOS&gt;</code> is predicted as the next word:<div class="indented"><ol id="52c882de-d04a-4ec9-963c-38a2e2c40be5" class="numbered-list" start="1"><li>Give the transformer <code>[real input] &lt;EOS&gt;</code> + <code>[already predicted words]</code>
+(<em>for GPT-2 like model</em>)</li></ol><ol id="39fa764c-d177-44e8-8033-0f995ecf0a05" class="numbered-list" start="2"><li>Pick the next with the probability outputted by the transformer (with <a href="Attention%20for%20RNN%20(Neural%20Machine%20Translation)%20d2d740197519410982dad4dd45d064c2.html">random sampling</a>)</li></ol><ol id="71502974-0e08-400b-bb48-1c7e7af70739" class="numbered-list" start="3"><li>Add this word to <code>[already predicted words]</code></li></ol></div></p><h1 id="c5b7c6ab-9eec-4b45-af7f-4795cfdb98e2" class="block-color-pink">Ressources</h1><h3 id="14a93ec1-db55-49bb-9447-9338cb695395" class="">Transformers</h3><div id="bb4c4e04-a033-4d08-99dc-8e9ebadb5846" class="column-list"><div id="65b6358f-8631-42bc-87db-0b605f26c6c5" style="width:50%" class="column"><figure id="d3fbe2c0-9cb8-4f4c-8350-194e61a4d591"><div class="source"><a href="https://www.youtube.com/watch?v=4Bdc55j80l8">https://www.youtube.com/watch?v=4Bdc55j80l8</a></div></figure><p id="8737072b-7a04-4006-af52-b4a84d8bdde1" class="">Exist also in <a href="https://www.michaelphi.com/illustrated-guide-to-transformers/">text version</a></p></div><div id="6f3855c7-fb43-480e-96c4-24d85fc6bfb3" style="width:50%" class="column"><figure id="2f696316-95c5-40a8-adef-7f140bdace02"><div class="source"><a href="https://www.youtube.com/watch?v=TQQlZhbC5ps">https://www.youtube.com/watch?v=TQQlZhbC5ps</a></div></figure></div></div><h3 id="1e45e652-cf68-4d9f-9fc8-4a5395aa95cf" class="">GPT-2 model</h3><ul id="480e42ee-fe82-41c5-884d-a5d6017914ba" class="bulleted-list"><li><a href="http://jalammar.github.io/illustrated-gpt2/">The Illustrated GPT-2 (Visualizing Transformer Language Models)</a></li></ul><p id="783cda6e-0387-4b81-8a03-4b7fd7de2762" class="">
+</p></div></article></body></html>

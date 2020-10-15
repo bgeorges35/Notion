@@ -1,0 +1,628 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Transfer learning (Question Answering)</title><style>
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	text-indent: -1.7em;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, YuMincho, "Yu Mincho", "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Songti TC", "Songti SC", "SimSun", "Nanum Myeongjo", NanumMyeongjo, Batang, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC', 'Noto Sans CJK KR'; }
+
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC', 'Noto Sans Mono CJK KR'; }
+
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, YuMincho, "Yu Mincho", "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Songti TC", "Songti SC", "SimSun", "Nanum Myeongjo", NanumMyeongjo, Batang, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC', 'Noto Sans CJK KR'; }
+
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC', 'Noto Sans Mono CJK KR'; }
+
+.highlight-default {
+}
+.highlight-gray {
+	color: rgb(155,154,151);
+}
+.highlight-brown {
+	color: rgb(100,71,58);
+}
+.highlight-orange {
+	color: rgb(217,115,13);
+}
+.highlight-yellow {
+	color: rgb(223,171,1);
+}
+.highlight-teal {
+	color: rgb(15,123,108);
+}
+.highlight-blue {
+	color: rgb(11,110,153);
+}
+.highlight-purple {
+	color: rgb(105,64,165);
+}
+.highlight-pink {
+	color: rgb(173,26,114);
+}
+.highlight-red {
+	color: rgb(224,62,62);
+}
+.highlight-gray_background {
+	background: rgb(235,236,237);
+}
+.highlight-brown_background {
+	background: rgb(233,229,227);
+}
+.highlight-orange_background {
+	background: rgb(250,235,221);
+}
+.highlight-yellow_background {
+	background: rgb(251,243,219);
+}
+.highlight-teal_background {
+	background: rgb(221,237,234);
+}
+.highlight-blue_background {
+	background: rgb(221,235,241);
+}
+.highlight-purple_background {
+	background: rgb(234,228,242);
+}
+.highlight-pink_background {
+	background: rgb(244,223,235);
+}
+.highlight-red_background {
+	background: rgb(251,228,228);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(55, 53, 47, 0.6);
+	fill: rgba(55, 53, 47, 0.6);
+}
+.block-color-brown {
+	color: rgb(100,71,58);
+	fill: rgb(100,71,58);
+}
+.block-color-orange {
+	color: rgb(217,115,13);
+	fill: rgb(217,115,13);
+}
+.block-color-yellow {
+	color: rgb(223,171,1);
+	fill: rgb(223,171,1);
+}
+.block-color-teal {
+	color: rgb(15,123,108);
+	fill: rgb(15,123,108);
+}
+.block-color-blue {
+	color: rgb(11,110,153);
+	fill: rgb(11,110,153);
+}
+.block-color-purple {
+	color: rgb(105,64,165);
+	fill: rgb(105,64,165);
+}
+.block-color-pink {
+	color: rgb(173,26,114);
+	fill: rgb(173,26,114);
+}
+.block-color-red {
+	color: rgb(224,62,62);
+	fill: rgb(224,62,62);
+}
+.block-color-gray_background {
+	background: rgb(235,236,237);
+}
+.block-color-brown_background {
+	background: rgb(233,229,227);
+}
+.block-color-orange_background {
+	background: rgb(250,235,221);
+}
+.block-color-yellow_background {
+	background: rgb(251,243,219);
+}
+.block-color-teal_background {
+	background: rgb(221,237,234);
+}
+.block-color-blue_background {
+	background: rgb(221,235,241);
+}
+.block-color-purple_background {
+	background: rgb(234,228,242);
+}
+.block-color-pink_background {
+	background: rgb(244,223,235);
+}
+.block-color-red_background {
+	background: rgb(251,228,228);
+}
+.select-value-color-default { background-color: rgba(206,205,202,0.5); }
+.select-value-color-gray { background-color: rgba(155,154,151, 0.4); }
+.select-value-color-brown { background-color: rgba(140,46,0,0.2); }
+.select-value-color-orange { background-color: rgba(245,93,0,0.2); }
+.select-value-color-yellow { background-color: rgba(233,168,0,0.2); }
+.select-value-color-green { background-color: rgba(0,135,107,0.2); }
+.select-value-color-blue { background-color: rgba(0,120,223,0.2); }
+.select-value-color-purple { background-color: rgba(103,36,222,0.2); }
+.select-value-color-pink { background-color: rgba(221,0,129,0.2); }
+.select-value-color-red { background-color: rgba(255,0,26,0.2); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="dbfa176e-c34c-4387-826b-90514f5f4057" class="page sans"><header><div class="page-header-icon undefined"><span class="icon">💬</span></div><h1 class="page-title">Transfer learning (Question Answering)</h1></header><div class="page-body"><figure id="467e5896-a1c9-42eb-a5b3-e2392626d4bc"><a href="https://www.coursera.org/learn/attention-models-in-nlp/home/week/3" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Coursera | Online Courses &amp; Credentials From Top Educators. Join for Free | Coursera</div><div class="bookmark-description">Learn online and earn valuable credentials from top universities like Yale, Michigan, Stanford, and leading companies like Google and IBM. Join Coursera for free and transform your career with degrees, certificates, Specializations, &amp; MOOCs in data science, computer science, business, and dozens of other topics.</div></div><div class="bookmark-href"><img src="https://d3njjcbhbojbot.cloudfront.net/web/images/favicons/icon-blue-32x32.png" class="icon bookmark-icon"/>https://www.coursera.org/learn/attention-models-in-nlp/home/week/3</div></div><img src="https://s3.amazonaws.com/coursera/media/Partner_Logos.png" class="bookmark-image"/></a></figure><h1 id="b8cd8969-6694-432a-9f1e-7a1148d49a84" class="block-color-blue">Transfer learning</h1><p id="13f33f1b-23e5-4b75-b437-153de293b965" class="">Take an <mark class="highlight-teal">already trained</mark> model and train it again (but less) on a task a bit different, a &quot;<strong><mark class="highlight-teal">Downsteam task</mark></strong>&quot;, to adapt it to your specific task</p><ul id="407c897b-6a1e-4c55-83ae-d461ec4726ce" class="toggle"><li><details open=""><summary><mark class="highlight-yellow">visual</mark></summary><p id="f476a931-99f8-4320-81bb-6a2de76ab5e1" class="">For similar task</p><figure id="89bb773f-3dcc-4e87-b9b5-93df684e6b37" class="image"><a href="Transfer%20learning%20(Question%20Answering)%20dbfa176ec34c4387826b90514f5f4057/Untitled.png"><img style="width:778px" src="Transfer%20learning%20(Question%20Answering)%20dbfa176ec34c4387826b90514f5f4057/Untitled.png"/></a><figcaption>Movie rating → Course rating</figcaption></figure><p id="db0f7c63-3737-4167-a4af-3b130f524178" class="">For different task</p><figure id="2ea775e9-8f5c-46cb-9ab9-2cbcd00c1e9b" class="image"><a href="Transfer%20learning%20(Question%20Answering)%20dbfa176ec34c4387826b90514f5f4057/Untitled%201.png"><img style="width:788px" src="Transfer%20learning%20(Question%20Answering)%20dbfa176ec34c4387826b90514f5f4057/Untitled%201.png"/></a><figcaption>Sentiment analysis → Question answering</figcaption></figure></details></li></ul><ul id="879f37f9-5b54-4bb3-9f49-d505352536b0" class="toggle"><li><details open=""><summary>compare with classic training</summary><figure id="bd3b8ffe-4806-406d-82bd-c4cbf4274960" class="image"><a href="Transfer%20learning%20(Question%20Answering)%20dbfa176ec34c4387826b90514f5f4057/Untitled%202.png"><img style="width:720px" src="Transfer%20learning%20(Question%20Answering)%20dbfa176ec34c4387826b90514f5f4057/Untitled%202.png"/></a></figure></details></li></ul><h3 id="400b79fb-3a58-4538-937a-b8114abe3489" class="">Advantages</h3><ul id="1c899e06-086f-4a58-889e-80b2274d82a5" class="bulleted-list"><li>Reduce training time</li></ul><ul id="04dbdf36-6cee-499a-ba78-ba35c352fd0a" class="bulleted-list"><li>Improve prediction</li></ul><ul id="bee81375-91ba-4380-a88d-46b26aeace3f" class="bulleted-list"><li>Can use smaller datasets</li></ul><hr id="3efb2ad6-84a9-4c1c-ac81-3b68ff53462f"/><p id="bef33619-d86d-4517-a171-a41a60266d4f" class="">There&#x27;s <mark class="highlight-teal">2 method</mark> to make transfer learning</p><h2 id="fe7bbfa8-b769-41d2-8865-f313a14eacee" class="block-color-purple">Feature-based</h2><div id="fa3cf227-1f38-40c9-bcb4-ba91e0b17951" class="column-list"><div id="8ba08537-2d66-41cb-967b-9a3521ca8247" style="width:50%" class="column"><p id="1206e40d-b202-4a00-a00d-073d5c5fd259" class="">We use a already trained model to modify the feature we use (like with <a href="Word%20embedding%20with%20NN%2072c9de5a698149a589995eac2d5c8f32.html">Continuous Bag-of-Words</a>)</p></div><div id="d84097f6-c6ab-4ec8-97f8-df89918b0319" style="width:50%" class="column"><figure id="6ffaeb17-c1f1-42f5-a653-d0ba5cfd0e73" class="image"><a href="Transfer%20learning%20(Question%20Answering)%20dbfa176ec34c4387826b90514f5f4057/Untitled%203.png"><img style="width:363px" src="Transfer%20learning%20(Question%20Answering)%20dbfa176ec34c4387826b90514f5f4057/Untitled%203.png"/></a></figure></div></div><h2 id="96744cca-2da7-4873-b450-6b5c042114c4" class="block-color-purple">Fine-Tune</h2><div id="f10323e8-3061-448c-bd24-5303e51f4021" class="column-list"><div id="dfb6cb3c-e634-4b5c-9c91-fc878693a9f6" style="width:50%" class="column"><p id="945ecfb1-ca07-4552-816c-4431db8b64af" class="">We reuse directly the pre-trained model&#x27;s weight to make our prediction</p></div><div id="ef6b6390-e4d0-44a1-8426-c9619eec768d" style="width:50%" class="column"><figure id="0c8007d1-92be-4cd3-baf4-e9ae0fb81c0c" class="image"><a href="Transfer%20learning%20(Question%20Answering)%20dbfa176ec34c4387826b90514f5f4057/Untitled%204.png"><img style="width:366px" src="Transfer%20learning%20(Question%20Answering)%20dbfa176ec34c4387826b90514f5f4057/Untitled%204.png"/></a></figure></div></div><p id="c59549b4-649e-491d-9fc7-3e0ebecef133" class="">With fine-tuning we can <mark class="highlight-teal">add an output layer</mark>.</p><p id="c69962d1-bbc8-409b-b93e-244303ae3fcc" class=""><mark class="highlight-yellow">For exemple</mark>: We have a pre-trained model to note movies on 3 star and want to use it to note something else on 5 star.</p><p id="5bf2bcc6-58e8-4d12-886d-15d41781af62" class="">We just have to <mark class="highlight-teal">add an output layer</mark> and train only this last layer (and <mark class="highlight-teal">frizzing</mark> the other weights)</p><figure id="02464a15-d177-443c-9aaf-5f6a15991ba6" class="image"><a href="Transfer%20learning%20(Question%20Answering)%20dbfa176ec34c4387826b90514f5f4057/Untitled%205.png"><img style="width:574px" src="Transfer%20learning%20(Question%20Answering)%20dbfa176ec34c4387826b90514f5f4057/Untitled%205.png"/></a></figure><hr id="370780a1-7ebb-4a59-ae16-2d6c5153e68a"/><h3 id="1c6f86d0-6339-40f0-888d-6d2fd6e703af" class="">Data</h3><p id="f7296802-29e4-4e9f-93f5-681a6359bda8" class="">More data → bigger model → bigger result</p><p id="6dd0e5c1-b43c-4f21-ada9-1585c5301cea" class="">There&#x27;s more unlabeled data, than labeled one</p><p id="4110f79e-4741-407e-9d35-135d721cc794" class="">We can use unlabeled data with &quot;self supervised&quot; task</p><blockquote id="2ea680c7-9e6f-410d-bda1-c3a457781c75" class="">&quot;This type of ML is <mark class="highlight-teal"><strong>self supervised</strong></mark> (there&#x27;s no label (unsupervised), but the context of the text acts like a label, so it&#x27;s a bit supervised. It&#x27;s a mix)&quot; - in <a href="Word%20embedding%20with%20NN%2072c9de5a698149a589995eac2d5c8f32.html">word embedding</a></blockquote><p id="a33657eb-0e2e-4538-bed3-ed394283f232" class=""><mark class="highlight-yellow">exemple</mark>: masking a word in a text and predicting it</p><h1 id="e7320a86-837e-4ba3-96a5-05b1a2c62a41" class="block-color-blue">Question Answering</h1><p id="eeea8703-f2c8-47ca-b5b1-49f915fc4f01" class="">There&#x27;s 2 types of question answering: one with context and one with none</p><figure id="a2e3a930-8635-41a1-a45a-d5c298f34168" class="image"><a href="Transfer%20learning%20(Question%20Answering)%20dbfa176ec34c4387826b90514f5f4057/Untitled%206.png"><img style="width:764px" src="Transfer%20learning%20(Question%20Answering)%20dbfa176ec34c4387826b90514f5f4057/Untitled%206.png"/></a></figure><p id="75981f95-17e7-46bf-8c01-a99a7a8a312b" class="">
+</p></div></article></body></html>

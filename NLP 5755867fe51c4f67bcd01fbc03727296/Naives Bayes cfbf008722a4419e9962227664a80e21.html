@@ -1,0 +1,640 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Naives Bayes</title><style>
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	text-indent: -1.7em;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, YuMincho, "Yu Mincho", "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Songti TC", "Songti SC", "SimSun", "Nanum Myeongjo", NanumMyeongjo, Batang, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC', 'Noto Sans CJK KR'; }
+
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC', 'Noto Sans Mono CJK KR'; }
+
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, YuMincho, "Yu Mincho", "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Songti TC", "Songti SC", "SimSun", "Nanum Myeongjo", NanumMyeongjo, Batang, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC', 'Noto Sans CJK KR'; }
+
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC', 'Noto Sans Mono CJK KR'; }
+
+.highlight-default {
+}
+.highlight-gray {
+	color: rgb(155,154,151);
+}
+.highlight-brown {
+	color: rgb(100,71,58);
+}
+.highlight-orange {
+	color: rgb(217,115,13);
+}
+.highlight-yellow {
+	color: rgb(223,171,1);
+}
+.highlight-teal {
+	color: rgb(15,123,108);
+}
+.highlight-blue {
+	color: rgb(11,110,153);
+}
+.highlight-purple {
+	color: rgb(105,64,165);
+}
+.highlight-pink {
+	color: rgb(173,26,114);
+}
+.highlight-red {
+	color: rgb(224,62,62);
+}
+.highlight-gray_background {
+	background: rgb(235,236,237);
+}
+.highlight-brown_background {
+	background: rgb(233,229,227);
+}
+.highlight-orange_background {
+	background: rgb(250,235,221);
+}
+.highlight-yellow_background {
+	background: rgb(251,243,219);
+}
+.highlight-teal_background {
+	background: rgb(221,237,234);
+}
+.highlight-blue_background {
+	background: rgb(221,235,241);
+}
+.highlight-purple_background {
+	background: rgb(234,228,242);
+}
+.highlight-pink_background {
+	background: rgb(244,223,235);
+}
+.highlight-red_background {
+	background: rgb(251,228,228);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(55, 53, 47, 0.6);
+	fill: rgba(55, 53, 47, 0.6);
+}
+.block-color-brown {
+	color: rgb(100,71,58);
+	fill: rgb(100,71,58);
+}
+.block-color-orange {
+	color: rgb(217,115,13);
+	fill: rgb(217,115,13);
+}
+.block-color-yellow {
+	color: rgb(223,171,1);
+	fill: rgb(223,171,1);
+}
+.block-color-teal {
+	color: rgb(15,123,108);
+	fill: rgb(15,123,108);
+}
+.block-color-blue {
+	color: rgb(11,110,153);
+	fill: rgb(11,110,153);
+}
+.block-color-purple {
+	color: rgb(105,64,165);
+	fill: rgb(105,64,165);
+}
+.block-color-pink {
+	color: rgb(173,26,114);
+	fill: rgb(173,26,114);
+}
+.block-color-red {
+	color: rgb(224,62,62);
+	fill: rgb(224,62,62);
+}
+.block-color-gray_background {
+	background: rgb(235,236,237);
+}
+.block-color-brown_background {
+	background: rgb(233,229,227);
+}
+.block-color-orange_background {
+	background: rgb(250,235,221);
+}
+.block-color-yellow_background {
+	background: rgb(251,243,219);
+}
+.block-color-teal_background {
+	background: rgb(221,237,234);
+}
+.block-color-blue_background {
+	background: rgb(221,235,241);
+}
+.block-color-purple_background {
+	background: rgb(234,228,242);
+}
+.block-color-pink_background {
+	background: rgb(244,223,235);
+}
+.block-color-red_background {
+	background: rgb(251,228,228);
+}
+.select-value-color-default { background-color: rgba(206,205,202,0.5); }
+.select-value-color-gray { background-color: rgba(155,154,151, 0.4); }
+.select-value-color-brown { background-color: rgba(140,46,0,0.2); }
+.select-value-color-orange { background-color: rgba(245,93,0,0.2); }
+.select-value-color-yellow { background-color: rgba(233,168,0,0.2); }
+.select-value-color-green { background-color: rgba(0,135,107,0.2); }
+.select-value-color-blue { background-color: rgba(0,120,223,0.2); }
+.select-value-color-purple { background-color: rgba(103,36,222,0.2); }
+.select-value-color-pink { background-color: rgba(221,0,129,0.2); }
+.select-value-color-red { background-color: rgba(255,0,26,0.2); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="cfbf0087-22a4-419e-9962-227664a80e21" class="page sans"><header><div class="page-header-icon undefined"><span class="icon">➗</span></div><h1 class="page-title">Naives Bayes</h1></header><div class="page-body"><figure id="e9a037e8-795b-4dd0-99d0-3e3a0c253ef1"><a href="https://www.coursera.org/learn/classification-vector-spaces-in-nlp/home/week/2" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Coursera | Online Courses &amp; Credentials From Top Educators. Join for Free | Coursera</div><div class="bookmark-description">Learn online and earn valuable credentials from top universities like Yale, Michigan, Stanford, and leading companies like Google and IBM. Join Coursera for free and transform your career with degrees, certificates, Specializations, &amp; MOOCs in data science, computer science, business, and dozens of other topics.</div></div><div class="bookmark-href"><img src="https://d3njjcbhbojbot.cloudfront.net/web/images/favicons/icon-blue-32x32.png" class="icon bookmark-icon"/>https://www.coursera.org/learn/classification-vector-spaces-in-nlp/home/week/2</div></div><img src="https://s3.amazonaws.com/coursera/media/Partner_Logos.png" class="bookmark-image"/></a></figure><p id="e5281bee-1f0e-4e0d-95df-969e97087305" class="">
+</p><h1 id="26045672-6c49-4891-9b1b-f68937cd99f3" class="block-color-blue">The formula</h1><p id="147fb340-c0a6-46a4-8441-29e22480c7df" class="">On peux exprimer la probabilité de A en sachant B (<code>P(A|B)</code> ) en fonction de la probabilité de B en sachant A (<code>P(B|A)</code>).</p><p id="328c71cc-c87c-4044-8cb7-5344a70c0e96" class="">
+</p><figure id="1fa21611-a02a-4557-97db-c03384c6b8fe" class="image"><a href="Naives%20Bayes%20cfbf008722a4419e9962227664a80e21/AC02AB36-B803-41A9-A614-505E833AAD72.jpeg"><img style="width:1376px" src="Naives%20Bayes%20cfbf008722a4419e9962227664a80e21/AC02AB36-B803-41A9-A614-505E833AAD72.jpeg"/></a></figure><p id="93b4508a-f65a-4e41-b021-afb1418393a5" class="">
+</p><p id="127adfbe-dfec-45c1-b60f-b2095ef658cb" class=""><mark class="highlight-yellow">Exemples</mark>: in a dataset, we know the probability that a comment contain the word &quot;cool&quot; given that it’s a positif comment.</p><p id="b0207d10-852c-4c8e-9a2e-4197a0b1b674" class="">With this formula, we can compute the probability that the comment is positive given that it contains the word &quot;cool&quot; (for prediction)</p><p id="8fa061b8-f687-4f2b-b70f-fecf3ca0579f" class="">
+</p><h1 id="9b712fad-597f-4cbd-abd9-6eebf590c72d" class="block-color-blue">Interference condition rule (for binary classification)</h1><p id="1d3ecdf7-e6da-417a-bcd3-8415935b3ad1" class="">For each word, we divide one frequency by the other. We multiply the result of each word.
+At the end, if it&#x27;s bigger or smaller than one, it&#x27;s from one or the other category</p><figure id="c1a1bbf6-431b-400d-8b8e-f69a0627d094" class="image"><a href="Naives%20Bayes%20cfbf008722a4419e9962227664a80e21/EFE7710C-9839-45E0-B09C-6ED2EBCD051C.jpeg"><img style="width:1924px" src="Naives%20Bayes%20cfbf008722a4419e9962227664a80e21/EFE7710C-9839-45E0-B09C-6ED2EBCD051C.jpeg"/></a></figure><figure id="f9d6eaec-9526-499e-ac12-2e4813d18739" class="image"><a href="Naives%20Bayes%20cfbf008722a4419e9962227664a80e21/CF684D61-2597-470D-89F5-1D272B3150E0.png"><img style="width:2436px" src="Naives%20Bayes%20cfbf008722a4419e9962227664a80e21/CF684D61-2597-470D-89F5-1D272B3150E0.png"/></a></figure><h1 id="a6cad07f-f00c-4cb0-9e64-ac0c5139ba19" class="block-color-blue">Laplacian Smoothing</h1><p id="897dcf8a-de81-4ccd-8e92-fa00a7a556cf" class="">Avoid probability to be at zero if a word is not present in one category.</p><p id="8bc75b94-0609-4429-a417-e550968edd55" class="">
+</p><p id="45d6e161-eccb-4008-b583-c575668ec71d" class="">We add one to each frequence (like if there were at least one exemple of each word in each category) and we divide by V (the number of fake word we added with the +1)</p><p id="0c446b09-a108-4574-a528-6c06a527a17e" class="">
+</p><figure id="9b0bf03d-3067-4e92-9284-f8c64469c6cf" class="image"><a href="Naives%20Bayes%20cfbf008722a4419e9962227664a80e21/E42145BB-915E-4D86-86A9-AA8D08D4AE97.jpeg"><img style="width:1909px" src="Naives%20Bayes%20cfbf008722a4419e9962227664a80e21/E42145BB-915E-4D86-86A9-AA8D08D4AE97.jpeg"/></a></figure><figure id="698fc531-ead6-4afc-b8c8-ddec18b6ba3e" class="image"><a href="Naives%20Bayes%20cfbf008722a4419e9962227664a80e21/FF79FDF9-D6FD-45AB-A978-F22C432A6706.jpeg"><img style="width:1820px" src="Naives%20Bayes%20cfbf008722a4419e9962227664a80e21/FF79FDF9-D6FD-45AB-A978-F22C432A6706.jpeg"/></a></figure><p id="cbb00460-1ca1-427c-8691-3b1309b1af8f" class="">
+</p><p id="16ed25d3-1f23-4a9a-b7a7-edcc1d349e04" class="">It’s an other way to get the <mark class="highlight-teal">probability</mark></p><h1 id="3b0b92e1-793c-4db5-b7f7-6003ee00ac89" class="block-color-blue">Log likelihood</h1><figure id="c633ec0b-bcae-46e5-b1bb-4588bf8c0252" class="image"><a href="Naives%20Bayes%20cfbf008722a4419e9962227664a80e21/3DF058F6-2729-48F9-B0F7-580D1C7FDB32.jpeg"><img style="width:1786px" src="Naives%20Bayes%20cfbf008722a4419e9962227664a80e21/3DF058F6-2729-48F9-B0F7-580D1C7FDB32.jpeg"/></a></figure><p id="947991f8-7e4a-46bc-8fa9-e09642eb4319" class="">Avant on savait si le mot tendais plus vers l’une des deux catégorie en fonction de si il était plus grand ou plus petit que <mark class="highlight-teal">1</mark>.</p><p id="7c84da5e-95e6-4f21-b314-24ab89dc2300" class="">Avec le log, on fait la même chose avec <mark class="highlight-teal">zéro</mark>.</p><p id="801a3fdb-7d85-4b96-adce-6193c9c1a09e" class="">(<em>La le </em><em><mark class="highlight-purple">log prior</mark></em><em> c&#x27;est zéro par ce que le dataset est équilibrer, mais ça peut changer en vrai</em>)</p><p id="4675c77a-7caf-4272-963c-0f861ed1e54a" class="">
+</p><p id="6d8c3a9e-b0ee-4dd5-97d2-38eadc0b2b22" class="">Ça nous donne un <mark class="highlight-teal">lambda</mark> pour chaque mot</p><p id="4349d645-91bd-4dba-a2ac-0984ec48dc35" class="">On fait la somme de tous les lambda pour avoir la log likelihood du texte.</p><h2 id="a2cfa3e7-56b1-4bba-8bee-1f24ba6fe9cd" class=""><mark class="highlight-purple">Log prior</mark></h2><p id="bf520fca-afdb-46b6-a6c2-8baffe89f1f2" class="">Le nombre qui fait la <mark class="highlight-teal">limite</mark> entre les deux categories</p><p id="c7cff514-349c-4a44-9d7e-90c60ced336b" class="">Pour un dataset balancé (même nombre dans les 2 catégories), c&#x27;est <mark class="highlight-yellow">0</mark></p><figure id="c13b5ec8-0d4d-41bc-bdbc-08c22b30062a" class="image"><a href="Naives%20Bayes%20cfbf008722a4419e9962227664a80e21/Untitled.png"><img style="width:384px" src="Naives%20Bayes%20cfbf008722a4419e9962227664a80e21/Untitled.png"/></a></figure><p id="6a5d85d6-f6bd-40da-ac4f-b64b0e299fef" class="">It&#x27;s bases on the &quot;<em>Prior</em>&quot; or the &quot;<em>Prior probability</em>&quot;:</p><div id="4b7bc9f2-e0d1-4bb2-925d-38ecc8ce61df" class="column-list"><div id="a0b9a531-1ce4-4407-9e63-66723e151ff3" style="width:50%" class="column"><figure id="03c7963d-3172-4273-bac1-9c46c5f1752b" class="image"><a href="Naives%20Bayes%20cfbf008722a4419e9962227664a80e21/Untitled%201.png"><img style="width:108px" src="Naives%20Bayes%20cfbf008722a4419e9962227664a80e21/Untitled%201.png"/></a></figure></div><div id="f9f7c155-2ca5-4d8a-bad3-370457e81c23" style="width:50%" class="column"><figure id="9455ca8a-3e49-44e9-a1cc-2f50b0dd3d84" class="image"><a href="Naives%20Bayes%20cfbf008722a4419e9962227664a80e21/Untitled%202.png"><img style="width:120px" src="Naives%20Bayes%20cfbf008722a4419e9962227664a80e21/Untitled%202.png"/></a></figure></div></div><p id="40f109c3-7027-45f9-b6a9-5178713a817d" class="">It&#x27;s the log of the Prior:</p><figure id="42f56361-7fea-415a-b826-427cd3a40afc" class="image"><a href="Naives%20Bayes%20cfbf008722a4419e9962227664a80e21/Untitled%203.png"><img style="width:384px" src="Naives%20Bayes%20cfbf008722a4419e9962227664a80e21/Untitled%203.png"/></a></figure><p id="1c1e791c-96f4-4adb-ab69-c3e8335ad503" class="">It can also be express with a subtraction (it&#x27;s equivalent)</p><figure id="65f384fc-33b2-45be-91f1-bd84efb4b340" class="image"><a href="Naives%20Bayes%20cfbf008722a4419e9962227664a80e21/Untitled%204.png"><img style="width:576px" src="Naives%20Bayes%20cfbf008722a4419e9962227664a80e21/Untitled%204.png"/></a></figure><h1 id="2f0e096c-918a-4409-bb34-62fac9dfd47f" class="block-color-red_background">Train Summary</h1><p id="926c2100-2910-47bb-8700-411c22e06757" class=""><em>Steps to &quot;</em><mark class="highlight-orange"><em>train</em></mark><em>&quot; your naives bayes</em></p><ol id="93a4ca22-3375-4f4b-a043-1a4c2d1c9cd8" class="numbered-list" start="1"><li>Collect annotated data</li></ol><ol id="d5ed022a-1300-4e0c-a970-86a4b97bf73c" class="numbered-list" start="2"><li><mark class="highlight-purple"><a href="https://www.notion.so/Vectorising-text-899b2b7bfaaf4955a8a98bd64a854ea1#3ee08730e90f4f46a76de323b5d9b8f0">Preprocess</a></mark> it :</li></ol><ol id="a0604904-658c-4c63-a77b-0cc25de3e4ce" class="numbered-list" start="3"><li>Count word <mark class="highlight-teal">frequency</mark> in each category</li></ol><ol id="13e7ca1f-2806-4916-bea7-a20ea18e0edf" class="numbered-list" start="4"><li>Get <mark class="highlight-teal">conditional probability</mark> (using <a href="https://www.notion.so/Naives-Bayes-cfbf008722a4419e9962227664a80e21#a6cad07ff00c4cb09e64ac0c5139ba19"><mark class="highlight-purple">Laplacian smoothing</mark></a>)</li></ol><ol id="929f8532-6919-497a-9de2-dac42902d3c2" class="numbered-list" start="5"><li>Get <mark class="highlight-teal">lambda score</mark> (log of the ration of the conditional probabilities)</li></ol><ol id="3e677122-2d35-450f-8a6e-95f76cf28134" class="numbered-list" start="6"><li>Get <a href="https://www.notion.so/Naives-Bayes-cfbf008722a4419e9962227664a80e21#a2cfa3e756b14bba8bee1f24ba6fe9cd"><mark class="highlight-purple">log prior</mark></a></li></ol><p id="d10cd43b-98e8-46d8-b750-b4584b8a18da" class="">
+</p><h1 id="66c1eb3f-1de4-4f37-a78b-fa7cdbd5909b" class="block-color-blue">Prediciton</h1><ol id="5fd53fe5-88a2-4333-b5bc-99fd3e66f8d2" class="numbered-list" start="1"><li>Preprocess the text</li></ol><ol id="40812070-194b-401b-830d-157d1b805413" class="numbered-list" start="2"><li>Add lambdas score of each token
+<em>Word that are not in the lambda tables are considered neutral (score of 0)</em></li></ol><ol id="8cc28fdb-0fcd-480c-972c-828b1fbdbde5" class="numbered-list" start="3"><li>add log prior</li></ol><p id="73edb498-2eb4-4053-b5cc-c4a9403a1528" class="">⇒ If final score is bigger or smaller than </p><figure id="22e059ef-a9ab-40a3-b1da-ceb01ddcf4e9" class="image"><a href="Naives%20Bayes%20cfbf008722a4419e9962227664a80e21/Untitled%205.png"><img style="width:1362px" src="Naives%20Bayes%20cfbf008722a4419e9962227664a80e21/Untitled%205.png"/></a></figure><hr id="b2c94d04-7165-4c0b-a454-a210a5d98e07"/><h1 id="044fc42b-39cb-49f5-8cc7-1ba9bdd59645" class="block-color-blue">Connection to the starting formula</h1><p id="09ee031b-92cc-414d-b30c-0bbe6d4f6c64" class="">
+</p><figure id="0766cc7e-cb47-406b-8116-0d006672444f" class="image"><a href="Naives%20Bayes%20cfbf008722a4419e9962227664a80e21/Untitled%206.png"><img style="width:882px" src="Naives%20Bayes%20cfbf008722a4419e9962227664a80e21/Untitled%206.png"/></a></figure><p id="c9bcac20-7392-45c2-895f-6a6873e812cc" class="">
+</p></div></article></body></html>
